@@ -22,7 +22,7 @@ class Evacuation extends Component
     public $firebase_collections = [
         'AffectedEvacuationCenter',
 
-    ];
+    ]; 
 
     public function render()
     {
@@ -60,6 +60,8 @@ class Evacuation extends Component
 
         $fields = [
             'Evac_name',
+            'Address',
+            'capacity',
             'latitude',
             'longtitude'
         ];
@@ -117,14 +119,15 @@ class Evacuation extends Component
             ]
         );
     }
-    public function deleteBridge($id)
+    public function deleteEvacaution($id)
     {
         $this->firestore()
             ->collection($this->selectedCollection) 
             ->document($id)
             ->delete();
-
+        session()->flash('message', 'Evacuation Center Deleted successfully!');
         $this->dispatch('showAlert', 'Deleted successfully!');
+            
     }
 }
  

@@ -24,7 +24,7 @@ Route::middleware(['auth', 'verified'])
     Route::livewire(
         '/EditRefBridgeWaterlevel/{id}',
         'bridge-waterlevel.edit-ref-bridge-waterlevel'
-    )->name('EditRefBridgeWaterlevel');
+    )->name('EditRefBridgeWaterlevel'); 
 
     Route::livewire(
         '/Roads',
@@ -38,6 +38,7 @@ Route::middleware(['auth', 'verified'])
         'evacuation.evacuation'
     )->name('Evacuation');
     Route::livewire('/addEvacuation', 'evacuation.add-evacuation')->name('addEvacuation');
+    Route::livewire('/editEvacuation/{id}', 'evacuation.edit-Evacuation')->name('editEvacuation');
 
 
     Route::livewire(

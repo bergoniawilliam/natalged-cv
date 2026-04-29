@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Livewire\Road;
+namespace App\Livewire\Evacuation;
 
 use Livewire\Component;
 use Kreait\Firebase\Factory;
 
-class EditRoads extends Component
+class EditEvacuation extends Component
 {
     public $id;
-    public $Road_name,$roadAddress, $latitude, $longtitude;
+    public $Evac_name,$Address,$capacity, $latitude, $longtitude;
     public function mount($id)
     {
         $this->id = $id;
@@ -18,13 +18,14 @@ class EditRoads extends Component
 
         $firestore = $factory->createFirestore()->database();
 
-        $doc = $firestore->collection('AffectedRoads')->document($id)->snapshot();
+        $doc = $firestore->collection('AffectedEvacuationCenter')->document($id)->snapshot();
 
         if ($doc->exists()) {
             $data = $doc->data();
 
-            $this->Road_name = $data['Road_name'] ?? '';
-            $this->roadAddress = $data['roadAddress'] ?? '';
+            $this->Evac_name = $data['Evac_name'] ?? '';
+            $this->Address = $data['Address'] ?? '';
+            $this->capacity = $data['capacity'] ?? '';
             $this->latitude = $data['latitude'] ?? '';
             $this->longtitude = $data['longtitude'] ?? '';
             
@@ -34,8 +35,9 @@ class EditRoads extends Component
     public function update()
     {
         $this->validate([
-            'Road_name' => 'required',
-            'roadAddress' => 'required',
+            'Evac_name' => 'required',
+            'Address' => 'required',
+            'capacity' => 'required',
             'latitude' => 'required',
             'longtitude' => 'required'
            
@@ -48,7 +50,7 @@ class EditRoads extends Component
             $firestore = $factory->createFirestore()->database();
 
             // ✅ CHECK DUPLICATE (exclude current document)
-            $documents = $firestore->collection('AffectedRoads')->documents();
+            $documents = $firestore->collection('AffectedEvacuationCenter')->documents();
 
             foreach ($documents as $doc) {
                 if (!$doc->exists()) continue;
@@ -59,42 +61,43 @@ class EditRoads extends Component
                 $data = $doc->data();
 
                 if (
-                    strtolower(trim($data['Road_name'] ?? '')) === strtolower(trim($this->Road_name)) &&
-                    strtolower(trim($data['roadAddress'] ?? '')) === strtolower(trim($this->roadAddress)) &&
+                    strtolower(trim($data['Evac_name'] ?? '')) === strtolower(trim($this->Evac_name)) &&
+                    strtolower(trim($data['Address'] ?? '')) === strtolower(trim($this->Address)) &&
+                    strtolower(trim($data['capacity'] ?? '')) === strtolower(trim($this->capacity)) &&
                     strtolower(trim($data['latitude'] ?? '')) === strtolower(trim($this->latitude)) &&
                     strtolower(trim($data['longtitude'] ?? '')) === strtolower(trim($this->longtitude))
 
                     
-                ) {
+                ) { 
                     session()->flash(
                         'error',
-                        'Duplicate road name with same location already exists.'
+                        'Duplicate Evacuation Center with same location already exists.'
                     );
                     return;
                 }
             }
 
             // ✅ UPDATE RECORD
-            $firestore->collection('AffectedRoads')
+            $firestore->collection('AffectedEvacuationCenter')
                 ->document($this->id)
                 ->set([
-                    'Road_name' => trim($this->Road_name),
-                    'roadAddress' => trim($this->roadAddress),
+                    'Evac_name' => trim($this->Evac_name),
+                    'Address' => trim($this->Address),
+                    'capacity' => trim($this->capacity),
                     'latitude' => trim($this->latitude),
                     'longtitude' => trim($this->longtitude),
                   
                 ], ['merge' => true]);
 
-            session()->flash('message', 'Road updated successfully!');
+            session()->flash('message', 'Evacuation Center updated successfully!');
 
         } catch (\Exception $e) {
             session()->flash('error', $e->getMessage());
         }
     }
-
     public function render()
     {
-        return view('livewire.road.edit-roads');
+        return view('livewire.evacuation.edit-evacuation');
     }
 }
  

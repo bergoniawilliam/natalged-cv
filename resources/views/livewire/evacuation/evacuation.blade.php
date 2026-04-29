@@ -1,5 +1,5 @@
 <div>
-    <h1 class="text-2xl font-bold mb-4">Roads</h1>
+    <h1 class="text-2xl font-bold mb-4">Evacaution</h1>
     <div class="flex flex-wrap gap-4 mb-4 items-center justify-between">
         <div class="flex flex-wrap gap-4 mb-4 items-center">
             <div>
@@ -32,7 +32,7 @@
                 wire:navigate
                 href="{{ route('addEvacuation') }}"
             > 
-                Add Evacuation
+                Add Evacuation 
             </flux:button>
         </div> 
     </div>
@@ -44,6 +44,19 @@
     <div wire:loading wire:target="selectedCollection, query" class="mb-4 text-center text-blue-500 font-bold">
         Loading Evacuation...
     </div>
+        {{-- SUCCESS MESSAGE --}}
+        @if(session()->has('message'))
+            <div class="mb-4 px-4 py-3 rounded border border-green-400 bg-green-500 text-white font-semibold shadow">
+                ✔ {{ session('message') }}
+            </div>
+        @endif
+
+        {{-- ERROR MESSAGE --}}
+        @if(session()->has('error'))
+            <div class="mb-4 px-4 py-3 rounded border border-red-400 bg-red-500 text-white font-semibold shadow">
+                ✖ {{ session('error') }}
+            </div>
+        @endif
 
     <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
@@ -51,6 +64,8 @@
                 <tr>
                     <th class="px-4 py-2 text-left text-sm font-medium text-zinc-900 dark:text-zinc-100">No.</th>
                     <th class="px-4 py-2 text-left text-sm font-medium text-zinc-900 dark:text-zinc-100">Evacuation Name</th>
+                    <th class="px-4 py-2 text-left text-sm font-medium text-zinc-900 dark:text-zinc-100">Address</th>
+                    <th class="px-4 py-2 text-left text-sm font-medium text-zinc-900 dark:text-zinc-100">Capacity</th>
                     <th class="px-4 py-2 text-left text-sm font-medium text-zinc-900 dark:text-zinc-100">Latitude</th>
                     <th class="px-4 py-2 text-left text-sm font-medium text-zinc-900 dark:text-zinc-100">Longtitude</th>
                     
@@ -64,6 +79,8 @@
                     <tr>
                         <td class="px-4 py-2 text-sm text-zinc-900 dark:text-zinc-100">{{ $index + 1 }}</td>
                         <td class="px-4 py-2 text-sm text-zinc-900 dark:text-zinc-100">{{ $collection['Evac_name'] ?? 'NA' }}</td>
+                        <td class="px-4 py-2 text-sm text-zinc-900 dark:text-zinc-100">{{ $collection['Address'] ?? 'NA' }}</td>
+                        <td class="px-4 py-2 text-sm text-zinc-900 dark:text-zinc-100">{{ $collection['capacity'] ?? 'NA' }}</td>
                         <td class="px-4 py-2 text-sm text-zinc-900 dark:text-zinc-100">{{ $collection['latitude'] ?? 'NA' }}</td>
                         <td class="px-4 py-2 text-sm text-zinc-900 dark:text-zinc-100">{{ $collection['longtitude'] ?? 'NA' }}</td>
                         
@@ -76,7 +93,7 @@
                                     variant="primary" 
                                     color="blue" 
                                     wire:navigate  
-                                    href="{{ route('editRoad', $collection['_id']) }}"
+                                    href="{{ route('editEvacuation', $collection['_id']) }}"
                                 >
                                     Edit
                                 </flux:button>
@@ -87,32 +104,32 @@
                                     class="bg-red-500 text-white px-2 py-1 rounded">
                                     Delete
                                 </button> -->
-                                <flux:modal.trigger name="delete-bridge-{{$collection['_id']}}">
+                                <flux:modal.trigger name="delete-Evacaution-{{$collection['_id']}}">
                                     <flux:button variant="danger">Delete</flux:button>
                                 </flux:modal.trigger>
-                                <flux:modal name="delete-bridge-{{$collection['_id']}}" wire:key="delete-bridge-{{$collection['_id']}}" class="min-w-[22rem]">
+                                <flux:modal name="delete-Evacaution-{{$collection['_id']}}" wire:key="delete-Evacaution-{{$collection['_id']}}" class="min-w-[22rem]">
                                     <div class="space-y-6">
                                         <div>
-                                            <flux:heading size="lg">Delete Road?</flux:heading>
+                                            <flux:heading size="lg">Delete Evacaution?</flux:heading>
                                             <flux:text class="mt-2">
                                                 <div>
-                                                    <flux:heading size="lg">Are you sure you want to delete this road?</flux:heading>
+                                                    <flux:heading size="lg">Are you sure you want to delete this Evacaution?</flux:heading>
                                                  </div>
                                                 @if($collection['_id'])
                                               
-                                                Name: {{ $collection['Road_name'] ?? "<span class='italic text-gray-400'>No specified Name </span>" }} <br>
+                                                Name: {{ $collection['Evac_name'] ?? "<span class='italic text-gray-400'>No specified Name </span>" }} <br>
                                                 
                                                 
                                                 @endif
                                                  
                                             </flux:text>
                                         </div>
-                                        <div class="flex gap-2">
+                                         <div class="flex gap-2">
                                             <flux:spacer />
                                             <flux:modal.close>
                                                 <flux:button variant="ghost">Cancel</flux:button>
                                             </flux:modal.close>
-                                            <flux:button wire:click="deleteBridge('{{ $collection['_id'] }}')" variant="danger">
+                                            <flux:button wire:click="deleteEvacaution('{{ $collection['_id'] }}')" variant="danger">
                                                 Yes
                                             </flux:button>
                                         </div>

@@ -14,32 +14,43 @@
         </div>
     @endif
 
-    <h2 class="text-xl font-bold mb-5">Add Road</h2>
+    <h2 class="text-xl font-bold mb-5">Edit Evacuation</h2>
 
-    <form wire:submit.prevent="save">
+    <form wire:submit.prevent="update">
 
-   
         <div class="mb-4">
-            <label class="block mb-1 font-medium">Road Name</label>
+            <label class="block mb-1 font-medium">Evacuation Name</label>
             <input 
                 type="text" 
-                wire:model="Road_name"
+                wire:model="Evac_name"
                 class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200"
                 placeholder="Enter road name"
             >
-            @error('Road_name')  
+            @error('Road_name') 
                 <span class="text-red-500 text-sm">{{ $message }}</span> 
             @enderror
         </div>
         <div class="mb-4">
-            <label class="block mb-1 font-medium">Road Address</label>
+            <label class="block mb-1 font-medium">Address</label>
             <input 
                 type="text" 
-                wire:model="roadAddress"
+                wire:model="Address"
                 class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200"
-                placeholder="Enter road address"
+                placeholder="Enter Address"
             >
-            @error('Road_name')  
+            @error('Address')  
+                <span class="text-red-500 text-sm">{{ $message }}</span> 
+            @enderror
+        </div>
+        <div class="mb-4">
+            <label class="block mb-1 font-medium">Capacity</label>
+            <input 
+                type="text" 
+                wire:model="capacity"
+                class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200"
+                placeholder="Enter Capacity"
+            >
+            @error('capacity')  
                 <span class="text-red-500 text-sm">{{ $message }}</span> 
             @enderror
         </div>
@@ -62,14 +73,15 @@
                 wire:model="longtitude"
                 class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200"
                 placeholder="Enter longtitude name"
-            >
+             >
             @error('longtitude') 
                 <span class="text-red-500 text-sm">{{ $message }}</span> 
             @enderror
         </div>
 
-       
+    
 
+       
         {{-- BUTTONS --}}
         <div class="flex justify-end gap-2 mt-5">
 
@@ -85,7 +97,7 @@
                 variant="primary" 
                 color="blue"
             >
-                Save Road
+                Update Road
             </flux:button>
 
         </div>

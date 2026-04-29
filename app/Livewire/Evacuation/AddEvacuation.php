@@ -7,7 +7,7 @@ use Kreait\Firebase\Factory;
 
 class AddEvacuation extends Component
 {
-      public $Evac_name, $latitude, $longtitude;
+      public $Evac_name,$Address,$capacity, $latitude, $longtitude;
     public function render()
     {
         return view('livewire.evacuation.add-evacuation');
@@ -16,6 +16,8 @@ class AddEvacuation extends Component
     { 
         $this->validate([
             'Evac_name' => 'required', 
+            'Address' => 'required', 
+            'capacity' => 'required', 
             'latitude' => 'required', 
             'longtitude' => 'required', 
             
@@ -38,6 +40,8 @@ class AddEvacuation extends Component
 
                 if (
                     strtolower(trim($data['Evac_name'] ?? '')) === strtolower(trim($this->Evac_name)) &&
+                    strtolower(trim($data['Address'] ?? '')) === strtolower(trim($this->Address)) &&
+                    strtolower(trim($data['capacity'] ?? '')) === strtolower(trim($this->capacity)) &&
                     strtolower(trim($data['latitude'] ?? '')) === strtolower(trim($this->latitude)) &&
                     strtolower(trim($data['longtitude'] ?? '')) === strtolower(trim($this->longtitude))
 
@@ -51,12 +55,14 @@ class AddEvacuation extends Component
             // ✅ SAVE IF NO DUPLICATE
             $db->collection('AffectedEvacuationCenter')->add([
                 'Evac_name' => trim($this->Evac_name),
+                'Address' => trim($this->Address),
+                'capacity' => trim($this->capacity),
                 'latitude' => trim($this->latitude),
                 'longtitude' => trim($this->longtitude),
                 
             ]);
 
-            $this->reset(['Evac_name','latitude','longtitude']);
+            $this->reset(['Evac_name','Address','capacity','latitude','longtitude']);
 
             session()->flash('message', 'Evacuation added successfully.');
 

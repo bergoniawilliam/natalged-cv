@@ -131,7 +131,7 @@
                 variant="primary" 
                 color="blue"
             >
-                Save Bridge
+                Save
             </flux:button>
         </div>
 

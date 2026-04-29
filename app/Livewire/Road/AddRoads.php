@@ -7,7 +7,7 @@ use Kreait\Firebase\Factory;
 
 class AddRoads extends Component
 {
-    public $Road_name, $latitude, $longtitude;
+    public $Road_name, $roadAddress, $latitude, $longtitude;
     public function render()
     {
         return view('livewire.road.add-roads');
@@ -16,6 +16,7 @@ class AddRoads extends Component
     { 
         $this->validate([
             'Road_name' => 'required', 
+            'roadAddress' => 'required', 
             'latitude' => 'required', 
             'longtitude' => 'required', 
             
@@ -38,6 +39,7 @@ class AddRoads extends Component
 
                 if (
                     strtolower(trim($data['Road_name'] ?? '')) === strtolower(trim($this->Road_name)) &&
+                    strtolower(trim($data['roadAddress'] ?? '')) === strtolower(trim($this->roadAddress)) &&
                     strtolower(trim($data['latitude'] ?? '')) === strtolower(trim($this->latitude)) &&
                     strtolower(trim($data['longtitude'] ?? '')) === strtolower(trim($this->longtitude))
 
@@ -51,12 +53,13 @@ class AddRoads extends Component
             // ✅ SAVE IF NO DUPLICATE
             $db->collection('AffectedRoads')->add([
                 'Road_name' => trim($this->Road_name),
+                'roadAddress' => trim($this->roadAddress),
                 'latitude' => trim($this->latitude),
                 'longtitude' => trim($this->longtitude),
                 
             ]);
 
-            $this->reset(['Road_name','latitude','longtitude']);
+            $this->reset(['Road_name','roadAddress','latitude','longtitude']);
 
             session()->flash('message', 'Road added successfully.');
 

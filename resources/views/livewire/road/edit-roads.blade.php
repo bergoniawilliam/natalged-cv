@@ -30,6 +30,18 @@
                 <span class="text-red-500 text-sm">{{ $message }}</span> 
             @enderror
         </div>
+         <div class="mb-4">
+            <label class="block mb-1 font-medium">Road Address</label>
+            <input 
+                type="text" 
+                wire:model="roadAddress"
+                class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200"
+                placeholder="Enter road address"
+            >
+            @error('Road_name')  
+                <span class="text-red-500 text-sm">{{ $message }}</span> 
+            @enderror
+        </div>
         <div class="mb-4">
             <label class="block mb-1 font-medium">Latitude</label>
             <input 
@@ -49,7 +61,7 @@
                 wire:model="longtitude"
                 class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200"
                 placeholder="Enter longtitude name"
-            >
+             >
             @error('longtitude') 
                 <span class="text-red-500 text-sm">{{ $message }}</span> 
             @enderror

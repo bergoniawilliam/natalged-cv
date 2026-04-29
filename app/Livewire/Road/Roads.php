@@ -59,6 +59,7 @@ class Roads extends Component
 
         $fields = [
             'Road_name',
+            'roadAddress',
             'latitude',
             'longtitude'
         ];
@@ -122,7 +123,7 @@ class Roads extends Component
             ->collection($this->selectedCollection)
             ->document($id)
             ->delete();
-
+        session()->flash('message', 'Evacuation Center Deleted successfully!');
         $this->dispatch('showAlert', 'Deleted successfully!');
     }
 }

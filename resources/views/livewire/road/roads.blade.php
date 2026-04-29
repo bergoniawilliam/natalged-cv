@@ -44,6 +44,19 @@
     <div wire:loading wire:target="selectedCollection, query" class="mb-4 text-center text-blue-500 font-bold">
         Loading Roads...
     </div>
+     {{-- SUCCESS MESSAGE --}}
+        @if(session()->has('message'))
+            <div class="mb-4 px-4 py-3 rounded border border-green-400 bg-green-500 text-white font-semibold shadow">
+                ✔ {{ session('message') }}
+            </div>
+        @endif
+
+        {{-- ERROR MESSAGE --}}
+        @if(session()->has('error'))
+            <div class="mb-4 px-4 py-3 rounded border border-red-400 bg-red-500 text-white font-semibold shadow">
+                ✖ {{ session('error') }}
+            </div>
+        @endif
 
     <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
@@ -51,6 +64,7 @@
                 <tr>
                     <th class="px-4 py-2 text-left text-sm font-medium text-zinc-900 dark:text-zinc-100">No.</th>
                     <th class="px-4 py-2 text-left text-sm font-medium text-zinc-900 dark:text-zinc-100">Road Name</th>
+                    <th class="px-4 py-2 text-left text-sm font-medium text-zinc-900 dark:text-zinc-100">Road Address</th>
                     <th class="px-4 py-2 text-left text-sm font-medium text-zinc-900 dark:text-zinc-100">Latitude</th>
                     <th class="px-4 py-2 text-left text-sm font-medium text-zinc-900 dark:text-zinc-100">Longtitude</th>
                     
@@ -64,6 +78,7 @@
                     <tr>
                         <td class="px-4 py-2 text-sm text-zinc-900 dark:text-zinc-100">{{ $index + 1 }}</td>
                         <td class="px-4 py-2 text-sm text-zinc-900 dark:text-zinc-100">{{ $collection['Road_name'] ?? 'NA' }}</td>
+                        <td class="px-4 py-2 text-sm text-zinc-900 dark:text-zinc-100">{{ $collection['roadAddress'] ?? 'NA' }}</td>
                         <td class="px-4 py-2 text-sm text-zinc-900 dark:text-zinc-100">{{ $collection['latitude'] ?? 'NA' }}</td>
                         <td class="px-4 py-2 text-sm text-zinc-900 dark:text-zinc-100">{{ $collection['longtitude'] ?? 'NA' }}</td>
                         
