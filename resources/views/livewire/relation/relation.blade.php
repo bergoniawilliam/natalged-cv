@@ -44,6 +44,19 @@
     <div wire:loading wire:target="selectedCollection, query" class="mb-4 text-center text-blue-500 font-bold">
         Loading Roads...
     </div>
+     {{-- SUCCESS MESSAGE --}}
+        @if(session()->has('message'))
+            <div class="mb-4 px-4 py-3 rounded border border-green-400 bg-green-500 text-white font-semibold shadow">
+                ✔ {{ session('message') }}
+            </div>
+        @endif
+
+        {{-- ERROR MESSAGE --}}
+        @if(session()->has('error'))
+            <div class="mb-4 px-4 py-3 rounded border border-red-400 bg-red-500 text-white font-semibold shadow">
+                ✖ {{ session('error') }}
+            </div>
+        @endif
 
     <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
@@ -71,7 +84,7 @@
                         </td>
 
                         <td class="px-4 py-2 text-sm">
-                            {{ $collection['road_name'] ?? 'NA' }}
+                              {{ $collection['affected_name'] ?? 'NA' }} 
                         </td>
                         
 
@@ -83,7 +96,7 @@
                                     variant="primary" 
                                     color="blue" 
                                     wire:navigate  
-                                    href="{{ route('editRoad', $collection['_id']) }}"
+                                    href="{{ route('editRelation', $collection['_id']) }}"
                                 >
                                     Edit
                                 </flux:button>
@@ -100,14 +113,14 @@
                                 <flux:modal name="delete-bridge-{{$collection['_id']}}" wire:key="delete-bridge-{{$collection['_id']}}" class="min-w-[22rem]">
                                     <div class="space-y-6">
                                         <div>
-                                            <flux:heading size="lg">Delete Bridge?</flux:heading>
+                                            <flux:heading size="lg">Delete Bridge and Details?</flux:heading>
                                             <flux:text class="mt-2">
                                                 <div>
-                                                    <flux:heading size="lg">Are you sure you want to delete this bridge?</flux:heading>
+                                                    <flux:heading size="lg">Are you sure you want to delete this bridge details?</flux:heading>
                                                 </div>
                                                 @if($collection['_id'])
                                               
-                                                Name: {{ $collection['Road_name'] ?? "<span class='italic text-gray-400'>No specified Name </span>" }} <br>
+                                                Name: {{ $collection['bridge_name'] ?? "<span class='italic text-gray-400'>No specified Name </span>" }} <br>
                                                 
                                                 
                                                 @endif

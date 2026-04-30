@@ -27,7 +27,7 @@ Route::middleware(['auth', 'verified'])
     )->name('EditRefBridgeWaterlevel'); 
 
     Route::livewire(
-        '/Roads',
+        '/Roads', 
         'road.roads'
     )->name('Roads');
     Route::livewire('/addRoad', 'road.add-roads')->name('addRoad');
@@ -49,7 +49,22 @@ Route::middleware(['auth', 'verified'])
         '/addRelation',
         'relation.add-relation'
     )->name('addRelation');
-    
+    Route::livewire('/editRelation/{id}', 'relation.edit-relation')->name('editRelation');
+
+
+    Route::livewire(
+        '/affected-bridge',
+        'bridge-affected.bridges-affected'
+    )->name('affected-bridge');
+    Route::livewire(
+        '/affected-bridge/edit/{id}',
+        'bridge-affected.edit-affected-bridge'
+    )->name('editAffectedBridge');
+    Route::livewire(
+        '/addAffectedBridge',
+        'bridge-affected.add-bridges-affected'
+    )->name('addAffectedBridge');
+        
 
 
 require __DIR__.'/settings.php';

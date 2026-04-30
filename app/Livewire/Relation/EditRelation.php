@@ -5,19 +5,22 @@ namespace App\Livewire\Relation;
 use Livewire\Component;
 use Kreait\Firebase\Factory;
 
-class AddRelation extends Component
+class EditRelation extends Component
 {
+    public $relation_id;
+
     public $bridge_id = '';
     public $affected_type = '';
     public $affected_id = '';
     public $latitude = '';
     public $longtitude = '';
-    public $bridges = []; 
+
+    public $bridges = [];
     public $affectedItems = [];
 
     public function render()
     {
-        return view('livewire.relation.add-relation');
+        return view('livewire.relation.edit-relation');
     }
 
     protected function db()
@@ -28,11 +31,13 @@ class AddRelation extends Component
             ->database();
     }
 
-    public function mount()
+    public function mount($id)
     {
+        $this->relation_id = $id;
+
         $db = $this->db();
 
-        // LOAD BRIDGES
+        // 🔥 LOAD BRIDGES
         $documents = $db->collection('RefBridgeWaterlevel')->documents();
 
         foreach ($documents as $doc) {
@@ -45,33 +50,51 @@ class AddRelation extends Component
                 'label' => ($data['Bridge_name'] ?? 'No Name') . ' - Water Level ' . ($data['Water_lvl'] ?? '0'),
             ];
         }
+
+        // 🔥 LOAD RELATION DATA
+        $relation = $db->collection('Relation')
+            ->document($id)
+            ->snapshot();
+
+        if ($relation->exists()) {
+            $data = $relation->data();
+
+            $this->bridge_id = $data['Refbridge_Waterlvl'] ?? '';
+            $this->affected_id = $data['Affected_doc_id'] ?? '';
+
+            // 🔥 AUTO DETECT TYPE
+            if ($db->collection('AffectedRoads')->document($this->affected_id)->snapshot()->exists()) {
+                $this->affected_type = 'AffectedRoads';
+            } elseif ($db->collection('AffectedEvacuationCenter')->document($this->affected_id)->snapshot()->exists()) {
+                $this->affected_type = 'AffectedEvacuationCenter';
+            }
+
+            // 🔥 LOAD ITEMS
+            $this->loadAffectedItems();
+
+            // 🔥 LOAD LAT LONG
+            $this->updatedAffectedId();
+        }
     }
 
-    public function updatedAffectedType()
+    public function loadAffectedItems()
     {
         $this->affectedItems = [];
-        $this->affected_id = '';
-        $this->latitude = '';
-        $this->longtitude = '';
 
         if (!$this->affected_type) return;
 
-        $db = $this->db();
-
-        $documents = $db->collection($this->affected_type)->documents();
+        $documents = $this->db()
+            ->collection($this->affected_type)
+            ->documents();
 
         foreach ($documents as $doc) {
             if (!$doc->exists()) continue;
 
             $data = $doc->data();
 
-            if ($this->affected_type === 'AffectedRoads') {
-                $name = $data['Road_name'] ?? 'No Name';
-            } elseif ($this->affected_type === 'AffectedEvacuationCenter') {
-                $name = $data['Evac_name'] ?? 'No Name';
-            } else {
-                $name = 'No Name';
-            }
+            $name = $this->affected_type === 'AffectedRoads'
+                ? ($data['Road_name'] ?? 'No Name')
+                : ($data['Evac_name'] ?? 'No Name');
 
             $this->affectedItems[] = [
                 'id' => $doc->id(),
@@ -79,6 +102,16 @@ class AddRelation extends Component
             ];
         }
     }
+
+    public function updatedAffectedType()
+    {
+        $this->affected_id = '';
+        $this->latitude = '';
+        $this->longtitude = '';
+
+        $this->loadAffectedItems();
+    }
+
     public function updatedAffectedId()
     {
         $this->latitude = '';
@@ -98,7 +131,8 @@ class AddRelation extends Component
             $this->longtitude = $data['longtitude'] ?? '';
         }
     }
-    public function save()
+
+    public function update()
     {
         $this->validate([
             'bridge_id' => 'required',
@@ -106,22 +140,14 @@ class AddRelation extends Component
             'affected_id' => 'required',
         ]);
 
-        $db = $this->db();
+        $this->db()
+            ->collection('Relation')
+            ->document($this->relation_id)
+            ->set([
+                'Refbridge_Waterlvl' => $this->bridge_id,
+                'Affected_doc_id' => $this->affected_id,
+            ]);
 
-        $db->collection('Relation')->add([
-            'Refbridge_Waterlvl' => $this->bridge_id,
-            'Affected_doc_id' => $this->affected_id,
-        ]);
-
-        session()->flash('message', 'Relation saved successfully.');
-
-        $this->reset([
-            'bridge_id',
-            'affected_type',
-            'affected_id',
-            'latitude',
-            'longtitude'
-        ]);
-        $this->affectedItems = [];
+        session()->flash('message', 'Relation updated successfully.');
     }
 }

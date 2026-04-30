@@ -55,71 +55,82 @@ class Relation extends Component
     }
     public function loadRelation()
     {
-        $relation = [];
+            $relation = [];
 
-        $db = $this->firestore();
+            $db = $this->firestore();
 
-        $fields = [
-            'Refbridge_Waterlvl',
-            'Affected_doc_id'
-        ];
+            $fields = [
+                'Refbridge_Waterlvl',
+                'Affected_doc_id'
+            ];
 
-        $query = $db->collection($this->selectedCollection)->select($fields);
+            $query = $db->collection($this->selectedCollection)->select($fields);
+            $documents = $query->documents();
 
-        $documents = $query->documents();
+            foreach ($documents as $doc) {
+                if (!$doc->exists()) continue;
 
-        foreach ($documents as $doc) {
-            if (!$doc->exists()) continue;
+                $data = $this->firestoreToArray($doc->data());
+                $data['_id'] = $doc->id();
 
-            $data = $this->firestoreToArray($doc->data());
+                // =========================
+                // 🔥 BRIDGE DETAILS
+                // =========================
+                $bridgeSnap = $db->collection('RefBridgeWaterlevel')
+                    ->document($data['Refbridge_Waterlvl'])
+                    ->snapshot();
 
-            $data['_id'] = $doc->id();
+                $data['bridge_name'] = $bridgeSnap->exists()
+                    ? ($bridgeSnap['Bridge_name'] ?? 'N/A')
+                    : 'N/A';
 
-            // =========================
-            // 🔥 GET BRIDGE DETAILS
-            // =========================
-            $bridgeSnap = $db->collection('RefBridgeWaterlevel')
-                ->document($data['Refbridge_Waterlvl'])
-                ->snapshot();
+                $data['water_lvl'] = $bridgeSnap->exists()
+                    ? ($bridgeSnap['Water_lvl'] ?? 'N/A')
+                    : 'N/A';
 
-            $data['bridge_name'] = $bridgeSnap->exists()
-                ? $bridgeSnap['Bridge_name']
-                : 'N/A';
+                // =========================
+                // 🔥 AFFECTED DETAILS (Road or Evac)
+                // =========================
+                $data['affected_name'] = 'N/A'; // default
 
-            $data['water_lvl'] = $bridgeSnap->exists()
-                ? $bridgeSnap['Water_lvl']
-                : 'N/A';
+                // try Roads
+                $roadSnap = $db->collection('AffectedRoads')
+                    ->document($data['Affected_doc_id'])
+                    ->snapshot();
 
-            // =========================
-            // 🔥 GET ROAD DETAILS
-            // =========================
-            $roadSnap = $db->collection('AffectedRoads')
-                ->document($data['Affected_doc_id'])
-                ->snapshot();
+                if ($roadSnap->exists()) {
+                    $data['affected_name'] = $roadSnap['Road_name'] ?? 'N/A';
+                } else {
+                    // try Evacuation
+                    $evacSnap = $db->collection('AffectedEvacuationCenter')
+                        ->document($data['Affected_doc_id'])
+                        ->snapshot();
 
-            $data['road_name'] = $roadSnap->exists()
-                ? $roadSnap['Road_name']
-                : 'N/A';
-            $data['water_lvl'] = $bridgeSnap->exists()
-            ? $bridgeSnap['Water_lvl']
-            : 'N/A';
+                    if ($evacSnap->exists()) {
+                        $data['affected_name'] = $evacSnap['Evac_name'] ?? 'N/A';
+                    }
+                }
 
-            // =========================
-            // SEARCH (optional fix)
-            // =========================
-            $data['name_lower_case'] = strtolower(
-                $data['bridge_name'] . ' ' . $data['road_name']
-            );
+                // =========================
+                // 🔍 SEARCH FIX (NO ERROR)
+                // =========================
+                $data['name_lower_case'] = strtolower(
+                    trim(
+                        ($data['bridge_name'] ?? '') . ' ' .
+                        ($data['affected_name'] ?? '') . ' ' .
+                        ($data['water_lvl'] ?? '')
+                    )
+                );
 
-            if ($this->query && stripos($data['name_lower_case'], strtolower($this->query)) === false) {
-                continue;
+                if ($this->query && stripos($data['name_lower_case'], strtolower($this->query)) === false) {
+                    continue;
+                }
+
+                $relation[] = $data;
             }
 
-            $relation[] = $data;
-        }
-
-        return $relation;
-    }
+            return $relation;
+        }       
     #[Computed]
     public function collections()
     {
@@ -154,7 +165,7 @@ class Relation extends Component
             ->collection($this->selectedCollection)
             ->document($id)
             ->delete();
-
+        session()->flash('message', 'Evacuation Center Deleted successfully!');
         $this->dispatch('showAlert', 'Deleted successfully!');
     }
 

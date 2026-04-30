@@ -32,12 +32,12 @@
                 wire:navigate
                 href="{{ route('addRoad') }}"
             > 
-                Add Bridge
+                Add Road
             </flux:button>
         </div> 
     </div>
     <div x-data=""
-        x-on:triggerDeleteConfirmation.window="if(confirm('Are you sure you want to delete this bridge?')) { @this.call('deleteBridge') }"
+        x-on:triggerDeleteConfirmation.window="if(confirm('Are you sure you want to delete this road?')) { @this.call('deleteBridge') }"
         x-on:showAlert.window="alert($event.detail)">
     </div>
     <!-- Loading indicator -->

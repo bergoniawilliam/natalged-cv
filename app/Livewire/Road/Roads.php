@@ -29,8 +29,8 @@ class Roads extends Component
     }
      protected function firestore()
     {
-        return new FirestoreClient([
-            'keyFilePath' => storage_path('app/private/firebase-adminsdk.json'),
+          return new FirestoreClient([
+            'keyFilePath' => config('firebase.credentials'),
         ]);
     }
     protected function firestoreToArray(array $data): array

@@ -30,7 +30,7 @@
                     <flux:sidebar.item icon="clipboard-document" :href="route('Evacuation')" :current="request()->routeIs('Evacuation')" wire:navigate>
                         {{ __('Evacuation') }}
                     </flux:sidebar.item>
-                     <flux:sidebar.item icon="clipboard-document" :href="route('Relation')" :current="request()->routeIs('Relation')" wire:navigate>
+                     <flux:sidebar.item icon="archive-box-arrow-down" :href="route('Relation')" :current="request()->routeIs('Relation')" wire:navigate>
                         {{ __('Relation') }}
                     </flux:sidebar.item>
                 </flux:sidebar.group>
