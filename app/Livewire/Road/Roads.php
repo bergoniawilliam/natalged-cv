@@ -29,9 +29,11 @@ class Roads extends Component
     }
      protected function firestore()
     {
-          return new FirestoreClient([
-            'keyFilePath' => config('firebase.credentials'),
-        ]);
+         return new FirestoreClient([
+        'keyFile' => json_decode(file_get_contents(config('firebase.credentials')), true),
+    ]);
+
+        
     }
     protected function firestoreToArray(array $data): array
     {
