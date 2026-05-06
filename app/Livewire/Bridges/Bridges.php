@@ -80,9 +80,9 @@ class Bridges extends Component
             if ($this->query && stripos($data['name_lower_case'], strtolower($this->query)) === false) {
                 continue;
             }
-            $data['_id'] = $doc->id();
+            $data['_id'] = $doc->id(); 
             $bridges[] = $data;
-
+ 
         }
 
         return $bridges;

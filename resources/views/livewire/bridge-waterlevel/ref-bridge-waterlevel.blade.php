@@ -2,7 +2,7 @@
     <h1 class="text-2xl font-bold mb-4">Bridges</h1>
     <div class="flex flex-wrap gap-4 mb-4 items-center justify-between">
         <div class="flex flex-wrap gap-4 mb-4 items-center">
-            <div>
+            <div class="hidden">
                 <label for="collection" class="font-bold mr-2">Collection:</label>
                 <select wire:model.live.debounce.500ms ="selectedCollection" id="collection" class="border px-2 py-1 rounded">
                     @foreach($firebase_collections as $col)
