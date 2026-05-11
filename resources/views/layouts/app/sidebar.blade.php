@@ -18,27 +18,34 @@
                     <flux:sidebar.item icon="users" :href="route('users')" :current="request()->routeIs('users')" wire:navigate>
                         {{ __('Users') }}
                     </flux:sidebar.item>
+                      <flux:sidebar.item icon="archive-box-arrow-down" :href="route('Relation')" :current="request()->routeIs('Relation')" wire:navigate>
+                        {{ __('Relation') }}
+                    </flux:sidebar.item>
                     <flux:sidebar.item icon="clipboard-document" :href="route('bridges')" :current="request()->routeIs('bridges')" wire:navigate>
                         {{ __('Bridges') }}
                     </flux:sidebar.item>
                     <flux:sidebar.item icon="clipboard-document" :href="route('RefBridgeWaterlevel')" :current="request()->routeIs('RefBridgeWaterlevel')" wire:navigate>
                         {{ __('RefBridgeWaterlevel') }}
                     </flux:sidebar.item>
-                    <flux:sidebar.item icon="clipboard-document" :href="route('Roads')" :current="request()->routeIs('Roads')" wire:navigate>
+                    <flux:sidebar.item icon="archive-box-arrow-down" :href="route('Roads')" :current="request()->routeIs('Roads')" wire:navigate>
                         {{ __('Roads') }}
                     </flux:sidebar.item>
-                    <flux:sidebar.item icon="clipboard-document" :href="route('Evacuation')" :current="request()->routeIs('Evacuation')" wire:navigate>
+                    <flux:sidebar.item icon="archive-box-arrow-down" :href="route('Evacuation')" :current="request()->routeIs('Evacuation')" wire:navigate>
                         {{ __('Evacuation') }}
                     </flux:sidebar.item>
-                     <flux:sidebar.item icon="archive-box-arrow-down" :href="route('Relation')" :current="request()->routeIs('Relation')" wire:navigate>
-                        {{ __('Relation') }}
+                   
+                     <flux:sidebar.item icon="archive-box-arrow-down" :href="route('affected-bridge')" :current="request()->routeIs('affected-bridge')" wire:navigate>
+                        {{ __('Affected Bridge') }}
                     </flux:sidebar.item>
-                </flux:sidebar.group>
+                     <flux:sidebar.item icon="archive-box-arrow-down" :href="route('barangay-affected')" :current="request()->routeIs('barangay-affected')" wire:navigate>
+                        {{ __('Affected Barangay') }}
+                    </flux:sidebar.item>
+                </flux:sidebar.group> 
             </flux:sidebar.nav>
 
             <flux:spacer />
 
-            <flux:sidebar.nav>
+            <!-- <flux:sidebar.nav>
                 <flux:sidebar.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit" target="_blank">
                     {{ __('Repository') }}
                 </flux:sidebar.item>
@@ -46,7 +53,7 @@
                 <flux:sidebar.item icon="book-open-text" href="https://laravel.com/docs/starter-kits#livewire" target="_blank">
                     {{ __('Documentation') }}
                 </flux:sidebar.item>
-            </flux:sidebar.nav>
+            </flux:sidebar.nav> -->
 
             <x-desktop-user-menu class="hidden lg:block" :name="auth()->user()->name" />
         </flux:sidebar>

@@ -1,12 +1,15 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
+use App\Livewire\Dashboard;
 Route::view('/', 'welcome')->name('home');
 
 Route::middleware(['auth', 'verified'])
 ->group(function(){
-    Route::view('dashboard', 'dashboard')->name('dashboard');
+    // Route::view('dashboard', 'dashboard')->name('dashboard');
+    Route::get('/dashboard', Dashboard::class)->name('dashboard');
+
+
     Route::livewire('users', 'users')->name('users');
     Route::livewire('adduser', 'users.adduser')->name('adduser');
     Route::livewire('users/edit/{uid}/{collection}', 'users.edituser')->name('edituser');
@@ -58,12 +61,21 @@ Route::middleware(['auth', 'verified'])
     )->name('affected-bridge');
     Route::livewire(
         '/affected-bridge/edit/{id}',
-        'bridge-affected.edit-affected-bridge'
+        'bridge-affected.edit-bridges-affected'
     )->name('editAffectedBridge');
     Route::livewire(
         '/addAffectedBridge',
         'bridge-affected.add-bridges-affected'
-    )->name('addAffectedBridge');
+    )->name('addAffectedBridge'); 
+
+
+    Route::livewire(
+        '/barangay-affected',
+        'barangay-affected.barangay-affected'
+    )->name('barangay-affected');
+    Route::livewire('/barangay-affected/add', 'barangay-affected.add-barangay-affected')->name('addBarangayAffected');
+
+Route::livewire('/barangay-affected/edit/{id}', 'barangay-affected.edit-barangay-affected')->name('editBarangayAffected');
         
 
 

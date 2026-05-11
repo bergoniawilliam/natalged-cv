@@ -29,9 +29,10 @@ class Roads extends Component
     }
      protected function firestore()
     {
-         return new FirestoreClient([
-        'keyFile' => json_decode(file_get_contents(config('firebase.credentials')), true),
-    ]);
+        return new FirestoreClient([
+            'keyFilePath' => storage_path('app/private/firebase-adminsdk.json'),
+        ]);
+
 
         
     }
@@ -89,10 +90,10 @@ class Roads extends Component
 
         }
 
-        return $roads;   
+        return $roads;    
     }
     #[Computed]
-    public function collections()
+    public function collections() 
     {
         $roads = collect($this->loadRoads() ?? []);
 
@@ -100,7 +101,7 @@ class Roads extends Component
         if ($this->query !== '') {
             $roads = $roads->filter(function ($roads) {
                 return str_contains(
-                    strtolower($bridges['name_lower_case'] ?? ''),
+                    strtolower($roads['name_lower_case'] ?? ''),
                     strtolower($this->query)
                 );
             });
