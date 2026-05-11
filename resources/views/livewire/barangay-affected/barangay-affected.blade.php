@@ -1,20 +1,15 @@
 <div>
 
-    <h1 class="text-2xl font-bold mb-4">Affected Bridges</h1>
+    <h1 class="text-2xl font-bold mb-4">Affected Barangays</h1>
 
     {{-- FILTERS --}}
     <div class="flex flex-wrap gap-4 mb-4 items-center justify-between">
 
-        <div class="flex flex-wrap gap-4 items-center">
-
-            <div>
-                <input type="text"
-                    wire:model.live.debounce.500ms="query"
-                    placeholder="Search bridge name..."
-                    class="border px-3 py-1 rounded"
-                >
-            </div>
-
+        <div class="flex gap-3 items-center">
+            <input type="text"
+                wire:model.live.debounce.500ms="query"
+                placeholder="Search barangay name..."
+                class="border px-3 py-1 rounded">
         </div>
 
         <div>
@@ -26,41 +21,41 @@
             </select>
         </div>
 
+        {{-- ADD BUTTON --}}
         <div>
             <flux:button
                 wire:navigate
-                href="{{ route('addAffectedBridge') }}"
+                href="{{ route('addBarangayAffected') }}"
             >
-                Add Bridge
-            </flux:button> 
+                Add Barangay
+            </flux:button>
         </div>
 
     </div>
 
-    {{-- LOADING --}}
-    <div wire:loading wire:target="query, perPage"
-        class="mb-4 text-center text-blue-500 font-bold">
-        Loading Bridges...
-    </div>
-
-    {{-- SUCCESS MESSAGE --}}
+    {{-- SUCCESS --}}
     @if(session()->has('message'))
         <div class="mb-4 px-4 py-3 rounded border border-green-400 bg-green-500 text-white font-semibold shadow">
             ✔ {{ session('message') }}
         </div>
     @endif
 
+    {{-- ERROR --}}
+    @if(session()->has('error'))
+        <div class="mb-4 px-4 py-3 rounded border border-red-400 bg-red-500 text-white font-semibold shadow">
+            ✖ {{ session('error') }}
+        </div>
+    @endif
+
     {{-- TABLE --}}
     <div class="overflow-x-auto">
-
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
 
             <thead class="bg-gray-50 dark:bg-zinc-600">
                 <tr>
                     <th class="px-4 py-2 text-left text-sm font-medium">No.</th>
-                    <th class="px-4 py-2 text-left text-sm font-medium">Bridge Name</th>
-                    <th class="px-4 py-2 text-left text-sm font-medium">Age</th>
-                    <th class="px-4 py-2 text-left text-sm font-medium">Length</th>
+                    <th class="px-4 py-2 text-left text-sm font-medium">Barangay Name</th>
+                    <th class="px-4 py-2 text-left text-sm font-medium">Families Affected</th>
                     <th class="px-4 py-2 text-left text-sm font-medium">Latitude</th>
                     <th class="px-4 py-2 text-left text-sm font-medium">Longitude</th>
                     <th class="px-4 py-2 text-left text-sm font-medium">Action</th>
@@ -71,66 +66,67 @@
                 @forelse($this->collections() as $index => $item)
                     <tr class="border-b">
 
-                        <td class="px-4 py-2">
+                        <td class="px-4 py-2 text-sm">
                             {{ $index + 1 }}
                         </td>
 
-                        <td class="px-4 py-2">
-                            {{ $item['bridgename'] ?? 'N/A' }}
+                        <td class="px-4 py-2 text-sm">
+                            {{ $item['barangayName'] ?? 'N/A' }}
                         </td>
 
-                        <td class="px-4 py-2">
-                            {{ $item['bridgeAge'] ?? 'N/A' }}
+                        <td class="px-4 py-2 text-sm">
+                            {{ $item['familiesAffected'] ?? 'N/A' }}
                         </td>
 
-                        <td class="px-4 py-2">
-                            {{ $item['bridgeLength'] ?? 'N/A' }}
-                        </td>
-
-                        <td class="px-4 py-2">
+                        <td class="px-4 py-2 text-sm">
                             {{ $item['latitude'] ?? 'N/A' }}
                         </td>
 
-                        <td class="px-4 py-2">
+                        <td class="px-4 py-2 text-sm">
                             {{ $item['longtitude'] ?? 'N/A' }}
                         </td>
 
-                        <td class="px-4 py-2">
-                            <div class="flex gap-2">
+                        <td class="px-4 py-2 text-sm">
+                            <div class="flex gap-2 items-center">
 
+                                {{-- EDIT --}}
                                 <flux:button
                                     variant="primary"
                                     color="blue"
                                     wire:navigate
-                                    href="{{ route('editAffectedBridge', $item['_id']) }}">
+                                    href="{{ route('editBarangayAffected', $item['_id']) }}"
+                                >
                                     Edit
                                 </flux:button>
 
-                                {{-- DELETE MODAL --}}
-                                <flux:modal.trigger name="delete-bridge-{{$item['_id']}}">
+                                {{-- DELETE TRIGGER --}}
+                                <flux:modal.trigger name="delete-barangay-{{$item['_id']}}">
                                     <flux:button variant="danger">
                                         Delete
                                     </flux:button>
                                 </flux:modal.trigger>
 
+                                {{-- DELETE MODAL --}}
                                 <flux:modal
-                                    name="delete-bridge-{{$item['_id']}}"
-                                    wire:key="delete-bridge-{{$item['_id']}}"
+                                    name="delete-barangay-{{$item['_id']}}"
+                                    wire:key="delete-barangay-{{$item['_id']}}"
                                     class="min-w-[22rem]"
                                 >
                                     <div class="space-y-6">
 
                                         <div>
                                             <flux:heading size="lg">
-                                                Delete Bridge?
+                                                Delete Barangay?
                                             </flux:heading>
 
                                             <flux:text class="mt-2">
-                                                Are you sure you want to delete this bridge?
+                                                <div>
+                                                    Are you sure you want to delete this barangay?
+                                                </div>
 
                                                 <div class="mt-2 text-gray-600">
                                                     Name:
-                                                    {{ $item['bridgename'] ?? 'N/A' }}
+                                                    {{ $item['barangayName'] ?? 'N/A' }}
                                                 </div>
                                             </flux:text>
                                         </div>
@@ -145,8 +141,9 @@
                                             </flux:modal.close>
 
                                             <flux:button
-                                                wire:click="deleteBridge('{{ $item['_id'] }}')"
-                                                variant="danger">
+                                                wire:click="deleteBarangay('{{ $item['_id'] }}')"
+                                                variant="danger"
+                                            >
                                                 Yes, Delete
                                             </flux:button>
                                         </div>
@@ -160,8 +157,8 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="text-center py-4">
-                            No bridges found
+                        <td colspan="6" class="text-center py-4">
+                            No barangays found
                         </td>
                     </tr>
                 @endforelse
@@ -169,10 +166,10 @@
 
         </table>
 
+        {{-- PAGINATION --}}
         <div class="mt-4">
             {{ $this->collections->links() }}
         </div>
-
     </div>
 
 </div>

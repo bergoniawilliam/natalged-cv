@@ -31,31 +31,31 @@ class AddBridgesAffected extends Component
 
         try {
 
-            // CHECK DUPLICATE
             $docs = $db->collection('AffectedBridge')->documents();
+
+            $newName = strtolower(trim($this->bridgename));
 
             foreach ($docs as $doc) {
                 if (!$doc->exists()) continue;
 
                 $data = $doc->data();
 
-                if (
-                    strtolower($data['bridgename'] ?? '') === strtolower($this->bridgename) &&
-                    $data['latitude'] === $this->latitude &&
-                    $data['longtitude'] === $this->longtitude
-                ) {
-                    session()->flash('error', 'Duplicate bridge already exists.');
+                $existingName = strtolower(trim($data['bridgename'] ?? ''));
+
+                // 🔥 DUPLICATE CHECK (NAME ONLY)
+                if ($existingName === $newName) {
+                    session()->flash('error', 'Bridge name already exists.');
                     return;
                 }
             }
 
             // SAVE
             $db->collection('AffectedBridge')->add([
-                'bridgename' => $this->bridgename,
-                'bridgeAge' => $this->bridgeAge,
-                'bridgeLength' => $this->bridgeLength,
-                'latitude' => $this->latitude,
-                'longtitude' => $this->longtitude,
+                'bridgename' => trim($this->bridgename),
+                'bridgeAge' => trim($this->bridgeAge),
+                'bridgeLength' => trim($this->bridgeLength),
+                'latitude' => trim($this->latitude),
+                'longtitude' => trim($this->longtitude),
             ]);
 
             $this->reset();

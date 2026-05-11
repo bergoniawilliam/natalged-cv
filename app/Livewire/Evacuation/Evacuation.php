@@ -101,7 +101,7 @@ class Evacuation extends Component
         if ($this->query !== '') {
             $evacuation = $evacuation->filter(function ($evacuation) {
                 return str_contains(
-                    strtolower($bridges['name_lower_case'] ?? ''),
+                    strtolower($evacuation['name_lower_case'] ?? ''),
                     strtolower($this->query)
                 );
             });
