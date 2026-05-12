@@ -22,7 +22,7 @@ class Dashboard extends Component
     public function mount()
     {
         $db = new FirestoreClient([
-            'keyFilePath' => storage_path('app/private/firebase-adminsdk.json'),
+            'keyFile' => json_decode(env('FIREBASE_CREDENTIALS'), true),
         ]);
 
         foreach ($this->firebase_collections as $collection) {
