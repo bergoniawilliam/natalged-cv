@@ -114,8 +114,16 @@ class Users extends Component
 
     protected function firestore(): FirestoreClient
     {
-         return new FirestoreClient([
-            'keyFilePath' => storage_path('app/private/firebase-adminsdk.json'),
+        $credentials = json_decode(env('FIREBASE_CREDENTIALS'), true);
+
+        $credentials['private_key'] = str_replace(
+            "\\n",
+            "\n",
+            $credentials['private_key']
+        );
+
+        return new FirestoreClient([
+            'keyFile' => $credentials,
         ]);
     }
 

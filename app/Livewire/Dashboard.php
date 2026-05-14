@@ -21,15 +21,18 @@ class Dashboard extends Component
 
     public function mount()
     {
+        $credentials = json_decode(env('FIREBASE_CREDENTIALS'), true);
+
+        $credentials['private_key'] = str_replace('\n', "\n", $credentials['private_key']);
+
         $db = new FirestoreClient([
-            'keyFile' => json_decode(env('FIREBASE_CREDENTIALS'), true),
+            'keyFile' => $credentials,
         ]);
 
         foreach ($this->firebase_collections as $collection) {
-            $this->counts[$collection] = $db
-                ->collection($collection)
-                ->documents()
-                ->size(); // count documents
+            $this->counts[$collection] = iterator_count(
+                $db->collection($collection)->documents()
+            );
         }
     }
 
