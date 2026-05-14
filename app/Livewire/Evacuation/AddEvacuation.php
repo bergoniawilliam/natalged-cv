@@ -7,7 +7,7 @@ use Kreait\Firebase\Factory;
 
 class AddEvacuation extends Component
 {
-      public $Evac_name,$Address,$capacity, $latitude, $longtitude;
+      public $Evac_name, $latitude, $longtitude;
     public function render()
     {
         return view('livewire.evacuation.add-evacuation');
@@ -16,7 +16,7 @@ class AddEvacuation extends Component
     { 
         $this->validate([
             'Evac_name' => 'required', 
-            'Address' => 'required', 
+             'Address' => 'required', 
             'capacity' => 'required', 
             'latitude' => 'required', 
             'longtitude' => 'required', 
