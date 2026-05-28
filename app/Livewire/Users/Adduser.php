@@ -58,8 +58,16 @@ class Adduser extends Component
         $this->validate();
 
         // Firebase connection
-        $factory = (new \Kreait\Firebase\Factory)
-            ->withServiceAccount(storage_path('app/private/firebase-adminsdk.json'));
+         $credentials = json_decode(env('FIREBASE_CREDENTIALS'), true);
+
+        $credentials['private_key'] = str_replace(
+            "\\n",
+            "\n",
+            $credentials['private_key']
+        );
+
+        $factory = (new Factory)
+            ->withServiceAccount($credentials);
 
         // 1️⃣ Create Auth user
         $auth = $factory->createAuth();
