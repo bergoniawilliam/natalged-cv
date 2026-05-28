@@ -18,10 +18,17 @@ class Addbridge extends Component
             
         ]);
 
-        $factory = (new \Kreait\Firebase\Factory)
-            ->withServiceAccount(storage_path('app/private/firebase-adminsdk.json'));
+        $credentials = json_decode(env('FIREBASE_CREDENTIALS'), true);
 
-        // ✅ FIXED LINE
+        $credentials['private_key'] = str_replace(
+            "\\n",
+            "\n",
+            $credentials['private_key']
+        );
+
+        $factory = (new \Kreait\Firebase\Factory)
+            ->withServiceAccount($credentials);
+
         $db = $factory->createFirestore()->database();
 
         try {

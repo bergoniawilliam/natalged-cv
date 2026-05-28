@@ -13,12 +13,23 @@ class EditEvacuation extends Component
     {
         $this->id = $id;
 
-        $factory = (new Factory)
-            ->withServiceAccount(storage_path('app/private/firebase-adminsdk.json'));
+        $credentials = json_decode(env('FIREBASE_CREDENTIALS'), true);
 
-        $firestore = $factory->createFirestore()->database();
+        $credentials['private_key'] = str_replace(
+            "\\n",
+            "\n",
+            $credentials['private_key']
+            );
 
-        $doc = $firestore->collection('AffectedEvacuationCenter')->document($id)->snapshot();
+            $factory = (new Factory)
+                ->withServiceAccount($credentials);
+
+            $firestore = $factory->createFirestore()->database();
+
+            $doc = $firestore
+                ->collection('AffectedEvacuationCenter')
+                ->document($id)
+                ->snapshot();
 
         if ($doc->exists()) {
             $data = $doc->data();
@@ -44,8 +55,16 @@ class EditEvacuation extends Component
         ]);
 
         try {
+            $credentials = json_decode(env('FIREBASE_CREDENTIALS'), true);
+
+            $credentials['private_key'] = str_replace(
+                "\\n",
+                "\n",
+                $credentials['private_key']
+            );
+
             $factory = (new Factory)
-                ->withServiceAccount(storage_path('app/private/firebase-adminsdk.json'));
+                ->withServiceAccount($credentials);
 
             $firestore = $factory->createFirestore()->database();
 

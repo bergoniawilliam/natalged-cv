@@ -30,8 +30,16 @@ class RefBridgeWaterlevel extends Component
     }
     protected function firestore()
     {
+        $credentials = json_decode(env('FIREBASE_CREDENTIALS'), true);
+
+        $credentials['private_key'] = str_replace(
+            "\\n",
+            "\n",
+            $credentials['private_key']
+        );
+
         return new FirestoreClient([
-            'keyFilePath' => storage_path('app/private/firebase-adminsdk.json'),
+            'keyFile' => $credentials,
         ]);
     }
     protected function firestoreToArray(array $data): array
@@ -62,14 +70,10 @@ class RefBridgeWaterlevel extends Component
             'Bridge_name','Water_lvl'
         ];
 
-        // Query sa currently selected collection
+      
         $query = $db->collection($this->selectedCollection)->select($fields);
 
-        // Kapag may search, i-apply lang sa selected collection
-        // if ($this->query) {
-        //     $query = $query->limit(50);
-        // }
-
+       
         $documents = $query->documents();
 
         foreach ($documents as $doc) {

@@ -15,12 +15,23 @@ class Editbridge extends Component
     {
         $this->id = $id;
 
+        $credentials = json_decode(env('FIREBASE_CREDENTIALS'), true);
+
+        $credentials['private_key'] = str_replace(
+            "\\n",
+            "\n",
+            $credentials['private_key']
+        );
+
         $factory = (new Factory)
-            ->withServiceAccount(storage_path('app/private/firebase-adminsdk.json'));
+            ->withServiceAccount($credentials);
 
         $firestore = $factory->createFirestore()->database();
 
-        $doc = $firestore->collection('ReferenceBridge')->document($id)->snapshot();
+        $doc = $firestore
+            ->collection('ReferenceBridge')
+            ->document($id)
+            ->snapshot();
 
         if ($doc->exists()) {
             $data = $doc->data();
@@ -41,8 +52,16 @@ class Editbridge extends Component
         ]);
 
         try {
+            $credentials = json_decode(env('FIREBASE_CREDENTIALS'), true);
+
+            $credentials['private_key'] = str_replace(
+                "\\n",
+                "\n",
+                $credentials['private_key']
+            );
+
             $factory = (new Factory)
-                ->withServiceAccount(storage_path('app/private/firebase-adminsdk.json'));
+                ->withServiceAccount($credentials);
 
             $firestore = $factory->createFirestore()->database();
 

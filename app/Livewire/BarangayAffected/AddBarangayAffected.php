@@ -23,8 +23,16 @@ class AddBarangayAffected extends Component
             'longtitude' => 'required',
         ]);
 
+       $credentials = json_decode(env('FIREBASE_CREDENTIALS'), true);
+
+        $credentials['private_key'] = str_replace(
+            "\\n",
+            "\n",
+            $credentials['private_key']
+        );
+
         $db = (new Factory)
-            ->withServiceAccount(storage_path('app/private/firebase-adminsdk.json'))
+            ->withServiceAccount($credentials)
             ->createFirestore()
             ->database();
 
