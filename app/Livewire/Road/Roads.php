@@ -37,7 +37,7 @@ class Roads extends Component
             $credentials['private_key']
         );
         return new FirestoreClient([
-            'keyFilePath' => storage_path('app/private/firebase-adminsdk.json'),
+            'keyFile' => $credentials,
         ]);
 
 
