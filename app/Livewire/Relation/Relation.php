@@ -31,8 +31,16 @@ class Relation extends Component
 
      protected function firestore()
     {
+        $credentials = json_decode(env('FIREBASE_CREDENTIALS'), true);
+
+        $credentials['private_key'] = str_replace(
+            "\\n",
+            "\n",
+            $credentials['private_key']
+        );
+
         return new FirestoreClient([
-            'keyFilePath' => storage_path('app/private/firebase-adminsdk.json'),
+            'keyFile' => $credentials,
         ]);
     }
     protected function firestoreToArray(array $data): array
