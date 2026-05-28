@@ -81,8 +81,16 @@ class Edituser extends Component
     {
         $this->validate();
 
-        $factory = (new Factory)
-            ->withServiceAccount(storage_path('app/private/firebase-adminsdk.json'));
+         $credentials = json_decode(env('FIREBASE_CREDENTIALS'), true);
+
+    $credentials['private_key'] = str_replace(
+        "\\n",
+        "\n",
+        $credentials['private_key']
+    );
+
+    $factory = (new Factory)
+        ->withServiceAccount($credentials);
 
         // 🔥 1. Update Firestore
         $firestore = $factory->createFirestore();
