@@ -144,7 +144,7 @@ class Users extends Component
                 $data[$key] = $this->firestoreToArray($value);
             } elseif ($value instanceof \Google\Cloud\Core\Timestamp) {
                 $data[$key] = $value->get()->format('M d, Y');
-            } elseif (method_exists($value, 'toDateTime')) {
+            } elseif (is_object($value) && method_exists($value, 'toDateTime')) {
                 $data[$key] = $value->toDateTime()->format('M d, Y');
             } elseif (is_scalar($value) || $value === null) {
                 $data[$key] = $value;
@@ -234,7 +234,7 @@ class Users extends Component
     }
 
     /**
-     * CSV export
+     * CSV export 
      */
     public function exportCsv(): StreamedResponse
     {
