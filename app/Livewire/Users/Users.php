@@ -129,12 +129,13 @@ class Users extends Component
 
     protected function firebaseAuth(): Auth
     {
-        
+        $credentials = json_decode(env('FIREBASE_CREDENTIALS'), true);
 
-        $factory = (new Factory)
-            ->withServiceAccount(storage_path('app/private/firebase-adminsdk.json'));
+        $credentials['private_key'] = str_replace("\\n", "\n", $credentials['private_key']);
 
-        return $factory->createAuth();
+        return (new Factory)
+            ->withServiceAccount($credentials)
+            ->createAuth();
     }
 
     protected function firestoreToArray(array $data): array
@@ -169,6 +170,7 @@ class Users extends Component
         if ($this->query) {
             $query = $query->where('Name', '>=', $this->query)
                            ->where('Name', '<=', $this->query . "\uf8ff");
+                           
         }
 
         // Pagination
