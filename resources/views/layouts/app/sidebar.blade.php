@@ -45,17 +45,26 @@
 
             <flux:spacer />
 
-            <!-- <flux:sidebar.nav>
-                <flux:sidebar.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit" target="_blank">
+            <flux:sidebar.nav>
+                <!-- <flux:sidebar.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit" target="_blank">
                     {{ __('Repository') }}
                 </flux:sidebar.item>
 
                 <flux:sidebar.item icon="book-open-text" href="https://laravel.com/docs/starter-kits#livewire" target="_blank">
                     {{ __('Documentation') }}
-                </flux:sidebar.item>
-            </flux:sidebar.nav> -->
+                </flux:sidebar.item> -->
+                                <li>
+                    <a href="{{ route('admin.users') }}"
+                    class="flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-200">
 
-            <x-desktop-user-menu class="hidden lg:block" :name="auth()->user()->name" />
+                        <span>👤</span>
+                        <span>Admin Accounts</span>
+
+                    </a>
+                </li>
+            </flux:sidebar.nav>
+
+            <x-desktop-user-menu class="hidden lg:block" :name="auth()->user()->first_name" />
         </flux:sidebar>
 
         <!-- Mobile User Menu -->
@@ -75,12 +84,12 @@
                         <div class="p-0 text-sm font-normal">
                             <div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
                                 <flux:avatar
-                                    :name="auth()->user()->name"
+                                    :name="auth()->user()->first_name"
                                     :initials="auth()->user()->initials()"
+                                    
                                 />
-
-                                <div class="grid flex-1 text-start text-sm leading-tight">
-                                    <flux:heading class="truncate">{{ auth()->user()->name }}</flux:heading>
+              <div class="grid flex-1 text-start text-sm leading-tight">
+                                    <flux:heading class="truncate">{{ auth()->user()->first_name }}</flux:heading>
                                     <flux:text class="truncate">{{ auth()->user()->email }}</flux:text>
                                 </div>
                             </div>

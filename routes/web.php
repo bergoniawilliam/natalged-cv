@@ -2,12 +2,19 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Dashboard;
+use App\Livewire\Admin\Admin;
+use App\Livewire\Admin\AddAdmin;
+use App\Livewire\Admin\EditAdmin;
 Route::view('/', 'welcome')->name('home');
 
 Route::middleware(['auth', 'verified'])
 ->group(function(){
     // Route::view('dashboard', 'dashboard')->name('dashboard');
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
+
+    Route::middleware(['auth'])->get('/admin/users', Admin::class)->name('admin.users');
+    Route::middleware(['auth'])->get('/admin/add', AddAdmin::class)->name('admin.add');
+    Route::get('/admin/users/edit/{id}', EditAdmin::class)->name('admin.edit');
 
 
     Route::livewire('users', 'users')->name('users');

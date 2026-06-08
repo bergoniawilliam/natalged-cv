@@ -7,12 +7,8 @@ use Kreait\Firebase\Factory;
 
 class Adduser extends Component
 {
-    public function render()
-    {
-        return view('livewire.users.adduser');
-    }
-    public $BWC = 'None';
-    public $CallSign = 'NoneF';
+    public $BWC;
+    public $CallSign;
     public $ContactNo;
     public $Name;
     public $Payslip;
@@ -23,17 +19,14 @@ class Adduser extends Component
     public $Unit;
     public $email;
     public $password;
-    public $selectedCollection = 'Administrators';
 
-    public $firebase_collections = [
-        'Administrators',
-        'BatanesPPO',
-        'CPPO',
-        'IPPO',
-        'NVPPO',
-        'QPPO',
-        'SCPO',
-    ];
+    public $selectedCollection;
+
+    public function mount()
+    {
+        // 🔐 FORCE USER'S ASSIGNED COLLECTION
+        $this->selectedCollection = auth()->user()->collection;
+    }
 
     protected $rules = [
         'BWC' => 'required|string',
@@ -48,28 +41,19 @@ class Adduser extends Component
         'Unit' => 'required|string',
         'email' => 'required|email',
         'password' => 'required|string|min:6',
-        'selectedCollection' => 'required|string',
     ];
 
-   
-   
     public function saveUser()
     {
         $this->validate();
 
-        // Firebase connection
-         $credentials = json_decode(env('FIREBASE_CREDENTIALS'), true);
+        $collection = auth()->user()->collection; // 🔐 FIXED COLLECTION
 
-        $credentials['private_key'] = str_replace(
-            "\\n",
-            "\n",
-            $credentials['private_key']
-        );
+        $credentials = json_decode(env('FIREBASE_CREDENTIALS'), true);
+        $credentials['private_key'] = str_replace("\\n", "\n", $credentials['private_key']);
 
-        $factory = (new Factory)
-            ->withServiceAccount($credentials);
+        $factory = (new Factory)->withServiceAccount($credentials);
 
-        // 1️⃣ Create Auth user
         $auth = $factory->createAuth();
 
         try {
@@ -79,45 +63,45 @@ class Adduser extends Component
                 'displayName' => $this->Name,
             ]);
 
-            $uid = $createdUser->uid; // 🔑 UID ng bagong Auth user
+            $uid = $createdUser->uid;
 
-        } catch (\Kreait\Firebase\Exception\Auth\EmailExists $e) {
-            session()->flash('message', 'Error: Email already exists in Firebase Auth.');
-            return;
         } catch (\Exception $e) {
-            session()->flash('message', 'Firebase Auth error: ' . $e->getMessage());
+            session()->flash('error', $e->getMessage());
             return;
         }
 
-        // 2️⃣ Save user info to Firestore collection gamit ang UID bilang document ID
         $firestore = $factory->createFirestore();
         $db = $firestore->database();
 
-        $db->collection($this->selectedCollection)
-        ->document($uid) // 🔑 Firestore document ID = Auth UID
-        ->set([
-            'uid' => $uid, // link sa Firebase Auth
-            'BWC' => $this->BWC,
-            'CallSign' => $this->CallSign,
-            'ContactNo' => $this->ContactNo,
-            'CreatedAt' => now()->toDateTimeString(),
-            'Name' => $this->Name,
-            'Payslip' => $this->Payslip,
-            'Rank' => $this->Rank,
-            'Role' => $this->Role,
-            'Station' => $this->Station,
-            'SubUnit' => $this->SubUnit,
-            'Unit' => $this->Unit,
-            'email' => $this->email,
-        ]);
+        // 🔐 SAVE ONLY TO USER'S COLLECTION
+        $db->collection($collection)
+            ->document($uid)
+            ->set([
+                'uid' => $uid,
+                'BWC' => $this->BWC,
+                'CallSign' => $this->CallSign,
+                'ContactNo' => $this->ContactNo,
+                'Name' => $this->Name,
+                'Payslip' => $this->Payslip,
+                'Rank' => $this->Rank,
+                'Role' => $this->Role,
+                'Station' => $this->Station,
+                'SubUnit' => $this->SubUnit,
+                'Unit' => $this->Unit,
+                'email' => $this->email,
+                'CreatedAt' => now()->toDateTimeString(),
+            ]);
 
-        // 3️⃣ Success message
         session()->flash('message', 'User added successfully!');
 
-        // 4️⃣ Reset form fields
         $this->reset([
-            'BWC','CallSign','ContactNo','Name','Payslip','Rank','Role','Station','SubUnit','Unit','email','password'
+            'BWC','CallSign','ContactNo','Name','Payslip',
+            'Rank','Role','Station','SubUnit','Unit','email','password'
         ]);
     }
-    
+
+    public function render()
+    {
+        return view('livewire.users.adduser');
+    }
 }

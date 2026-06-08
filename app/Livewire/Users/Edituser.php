@@ -4,6 +4,7 @@ namespace App\Livewire\Users;
 
 use Livewire\Component;
 use Kreait\Firebase\Factory;
+use Google\Cloud\Firestore\FirestoreClient;
 
 class Edituser extends Component
 {
@@ -20,6 +21,7 @@ class Edituser extends Component
     public $SubUnit;
     public $Unit;
     public $email;
+
     public $selectedCollection;
 
     protected $rules = [
@@ -36,26 +38,21 @@ class Edituser extends Component
         'email' => 'required|email',
     ];
 
-    public function mount($collection, $uid)
+    // =========================
+    // MOUNT (SECURE)
+    // =========================
+    public function mount($uid)
     {
         $this->uid = $uid;
-        $this->selectedCollection = $collection;
 
-        $credentials = json_decode(env('FIREBASE_CREDENTIALS'), true);
+        $this->selectedCollection = auth()->user()->collection;
 
-        $credentials['private_key'] = str_replace(
-            "\\n",
-            "\n",
-            $credentials['private_key']
-        );
+        $db = $this->firestore();
+        $collection = $this->selectedCollection;
 
-        $factory = (new Factory)
-            ->withServiceAccount($credentials);
-
-        $firestore = $factory->createFirestore();
-        $db = $firestore->database();
-
-        $doc = $db->collection($collection)->document($uid)->snapshot();
+        $doc = $db->collection($collection)
+            ->document($uid)
+            ->snapshot();
 
         if (!$doc->exists()) {
             abort(404, 'User not found');
@@ -63,7 +60,6 @@ class Edituser extends Component
 
         $data = $doc->data();
 
-        // 🔄 Populate fields
         $this->BWC = $data['BWC'] ?? '';
         $this->CallSign = $data['CallSign'] ?? '';
         $this->ContactNo = $data['ContactNo'] ?? '';
@@ -77,26 +73,17 @@ class Edituser extends Component
         $this->email = $data['email'] ?? '';
     }
 
+    // =========================
+    // UPDATE USER (SECURE)
+    // =========================
     public function updateUser()
     {
         $this->validate();
 
-         $credentials = json_decode(env('FIREBASE_CREDENTIALS'), true);
+        $db = $this->firestore();
+        $collection = auth()->user()->collection;
 
-    $credentials['private_key'] = str_replace(
-        "\\n",
-        "\n",
-        $credentials['private_key']
-    );
-
-    $factory = (new Factory)
-        ->withServiceAccount($credentials);
-
-        // 🔥 1. Update Firestore
-        $firestore = $factory->createFirestore();
-        $db = $firestore->database();
-
-        $db->collection($this->selectedCollection)
+        $db->collection($collection)
             ->document($this->uid)
             ->update([
                 ['path' => 'BWC', 'value' => $this->BWC],
@@ -112,10 +99,10 @@ class Edituser extends Component
                 ['path' => 'email', 'value' => $this->email],
             ]);
 
-        // 🔥 2. Update Firebase Auth (email + name)
-        $auth = $factory->createAuth();
-
+        // update Firebase Auth
         try {
+            $auth = $this->firebaseAuth();
+
             $auth->updateUser($this->uid, [
                 'email' => $this->email,
                 'displayName' => $this->Name,
@@ -128,6 +115,37 @@ class Edituser extends Component
         session()->flash('message', 'User updated successfully!');
     }
 
+    // =========================
+    // FIRESTORE
+    // =========================
+    protected function firestore(): FirestoreClient
+    {
+        $credentials = json_decode(env('FIREBASE_CREDENTIALS'), true);
+
+        $credentials['private_key'] = str_replace("\\n", "\n", $credentials['private_key']);
+
+        return new FirestoreClient([
+            'keyFile' => $credentials,
+        ]);
+    }
+
+    // =========================
+    // AUTH
+    // =========================
+    protected function firebaseAuth()
+    {
+        $credentials = json_decode(env('FIREBASE_CREDENTIALS'), true);
+
+        $credentials['private_key'] = str_replace("\\n", "\n", $credentials['private_key']);
+
+        return (new Factory)
+            ->withServiceAccount($credentials)
+            ->createAuth();
+    }
+
+    // =========================
+    // VIEW
+    // =========================
     public function render()
     {
         return view('livewire.users.edituser');

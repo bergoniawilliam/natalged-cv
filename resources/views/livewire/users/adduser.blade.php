@@ -1,140 +1,74 @@
-<div class="max-w-2xl mx-auto p-4 space-y-4">
+<div class="max-w-3xl mx-auto p-6">
 
-    {{-- SUCCESS MESSAGE --}}
-    @if(session()->has('message'))
-        <div class="mb-4 px-4 py-3 rounded border border-green-400 bg-green-500 text-white font-semibold shadow">
-            ✔ {{ session('message') }}
-        </div>
-    @endif
+    <flux:card class="p-6 space-y-6">
 
-    {{-- ERROR MESSAGE --}}
-    @if(session()->has('error'))
-        <div class="mb-4 px-4 py-3 rounded border border-red-400 bg-red-500 text-white font-semibold shadow">
-            ✖ {{ session('error') }}
-        </div>
-    @endif
-
-    <h2 class="text-xl font-bold mb-5">Add User</h2>
-
-    {{-- Collection --}}
-    <div class="mb-4">
-        <label class="font-bold">Collection</label>
-        <select wire:model.live.debounce.500ms="selectedCollection" class="border px-2 py-2 rounded w-full">
-            @foreach($firebase_collections as $col)
-                <option value="{{ $col }}">{{ $col }}</option>
-            @endforeach
-        </select>
-    </div>
-
-    <form wire:submit.prevent="saveUser">
-
-        <div class="flex flex-wrap -mx-2 gap-4">
-
-            {{-- BWC --}}
-            <div class="w-1/3 px-2">
-                <label class="font-bold">BWC</label>
-                <input type="text" wire:model="BWC" class="border p-2 w-full rounded">
-                @error('BWC') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-            </div>
-
-            {{-- CallSign --}}
-            <div class="w-1/3 px-2">
-                <label class="font-bold">CallSign</label>
-                <input type="text" wire:model="CallSign" class="border p-2 w-full rounded">
-                @error('CallSign') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-            </div>
-
-            {{-- ContactNo --}}
-            <div class="w-1/3 px-2">
-                <label class="font-bold">ContactNo</label>
-                <input type="text" wire:model="ContactNo" class="border p-2 w-full rounded">
-                @error('ContactNo') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-            </div>
-
-            {{-- Name --}}
-            <div class="w-1/3 px-2">
-                <label class="font-bold">Name</label>
-                <input type="text" wire:model="Name" class="border p-2 w-full rounded">
-                @error('Name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-            </div>
-
-            {{-- Payslip --}}
-            <div class="w-1/3 px-2">
-                <label class="font-bold">Payslip</label>
-                <input type="text" wire:model="Payslip" class="border p-2 w-full rounded">
-                @error('Payslip') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-            </div>
-
-            {{-- Rank --}}
-            <div class="w-1/3 px-2">
-                <label class="font-bold">Rank</label>
-                <input type="text" wire:model="Rank" class="border p-2 w-full rounded">
-                @error('Rank') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-            </div>
-
-            {{-- Role --}}
-            <div class="w-1/3 px-2">
-                <label class="font-bold">Role</label>
-                <input type="text" wire:model="Role" class="border p-2 w-full rounded">
-                @error('Role') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-            </div>
-
-            {{-- Station --}}
-            <div class="w-1/3 px-2">
-                <label class="font-bold">Station</label>
-                <input type="text" wire:model="Station" class="border p-2 w-full rounded">
-                @error('Station') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-            </div>
-
-            {{-- SubUnit --}}
-            <div class="w-1/3 px-2">
-                <label class="font-bold">SubUnit</label>
-                <input type="text" wire:model="SubUnit" class="border p-2 w-full rounded">
-                @error('SubUnit') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-            </div>
-
-            {{-- Unit --}}
-            <div class="w-1/3 px-2">
-                <label class="font-bold">Unit</label>
-                <input type="text" wire:model="Unit" class="border p-2 w-full rounded">
-                @error('Unit') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-            </div>
-
-            {{-- Email --}}
-            <div class="w-1/3 px-2">
-                <label class="font-bold">Email</label>
-                <input type="email" wire:model="email" class="border p-2 w-full rounded">
-                @error('email') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-            </div>
-
-            {{-- Password --}}
-            <div class="w-1/3 px-2">
-                <label class="font-bold">Password</label>
-                <input type="password" wire:model="password" class="border p-2 w-full rounded">
-                @error('password') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-            </div>
-
+        {{-- HEADER --}}
+        <div class="flex items-center justify-between">
+            <flux:heading size="lg">Add User</flux:heading>
         </div>
 
-        {{-- BUTTONS --}}
-        <div class="flex justify-end gap-2 mt-5">
+        {{-- SUCCESS --}}
+        @if(session()->has('message'))
+            <flux:callout variant="success">
+                {{ session('message') }}
+            </flux:callout>
+        @endif
 
-             <flux:button 
-                href="{{ route('users') }}" 
-                variant="outline"
-            >
-                Cancel
-            </flux:button>
+        {{-- ERROR --}}
+        @if(session()->has('error'))
+            <flux:callout variant="danger">
+                {{ session('error') }}
+            </flux:callout>
+        @endif
 
-            <flux:button 
-                type="submit" 
-                variant="primary" 
-                color="blue"
-            >
-                Save
-            </flux:button>
+        {{-- COLLECTION (READ ONLY) --}}
+        <div class="space-y-1">
+            <flux:label>Collection</flux:label>
+            <flux:input
+                value="{{ auth()->user()->collection }}"
+                readonly
+                class="bg-zinc-100 dark:bg-zinc-800"
+            />
         </div>
 
-    </form>
+        <form wire:submit.prevent="saveUser" class="space-y-6">
+
+            {{-- GRID --}}
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+                <flux:input label="BWC" wire:model="BWC" />
+                <flux:input label="CallSign" wire:model="CallSign" />
+                <flux:input label="Contact No" wire:model="ContactNo" />
+
+                <flux:input label="Name" wire:model="Name" />
+                <flux:input label="Payslip" wire:model="Payslip" />
+                <flux:input label="Rank" wire:model="Rank" />
+
+                <flux:input label="Role" wire:model="Role" />
+                <flux:input label="Station" wire:model="Station" />
+                <flux:input label="SubUnit" wire:model="SubUnit" />
+
+                <flux:input label="Unit" wire:model="Unit" />
+                <flux:input type="email" label="Email" wire:model="email" />
+                <flux:input type="password" label="Password" wire:model="password" />
+
+            </div>
+
+            {{-- ACTIONS --}}
+            <div class="flex justify-end gap-3 pt-4 border-t">
+
+                <flux:button variant="ghost" href="{{ route('users') }}">
+                    Cancel
+                </flux:button>
+
+                <flux:button type="submit" variant="primary" color="blue">
+                    Save User
+                </flux:button>
+
+            </div>
+
+        </form>
+
+    </flux:card>
 
 </div>

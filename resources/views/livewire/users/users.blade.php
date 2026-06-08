@@ -3,13 +3,11 @@
     <div class="flex flex-wrap gap-4 mb-4 items-center justify-between">
         <div class="flex flex-wrap gap-4 mb-4 items-center">
             <div>
-                <label for="collection" class="font-bold mr-2">Collection:</label>
-                <select wire:model.live.debounce.500ms ="selectedCollection" id="collection" class="border px-2 py-1 rounded">
-                    @foreach($firebase_collections as $col)
-                        <option value="{{ $col }}">{{ $col }}</option>
-                    @endforeach
-                </select>
-            </div>
+    <label class="font-bold">Collection:</label>
+    <span class="text-blue-600 font-semibold">
+        {{ auth()->user()->collection }}
+    </span>
+</div>
 
             <div>
                 <input type="text" wire:model.live.debounce.500ms="query" placeholder="Search by Name..." class="border px-2 py-1 rounded">
