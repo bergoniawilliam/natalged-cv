@@ -24,8 +24,10 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+        $faker = Faker::create();
+
         return [
-            'email' => fake()->unique()->safeEmail(),
+            'email' => $faker->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= bcrypt('password'),
             'remember_token' => Str::random(10),

@@ -27,7 +27,7 @@ return new class extends Migration
         });
 
         DB::table('users')->insert([
-            'rank' => 'ADMIN',
+            'rank' => 'Pat',
             'first_name' => 'System',
             'middle_name' => '',
             'last_name' => 'Administrator',
