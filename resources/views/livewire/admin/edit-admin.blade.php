@@ -15,18 +15,17 @@
         <label class="font-bold mr-2">Collection:</label>
 
         <select wire:model="selectedCollection"
-                id="collection"
-                class="border px-2 py-1 rounded">
+            class="border px-2 py-1 rounded">
 
-            <option value="">Select Collection</option>
+        <option value="">Select Collection</option>
 
-            @foreach($firebaseCollections as $collection)
-                <option value="{{ $collection }}">
-                    {{ $collection }}
-                </option>
-            @endforeach
+        @foreach($this->firebaseCollections as $collection)
+            <option value="{{ $collection }}">
+                {{ $collection }}
+            </option>
+        @endforeach
 
-        </select>
+    </select>
     </div>
 
     <button wire:click="update"

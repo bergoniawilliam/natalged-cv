@@ -2,9 +2,11 @@
 
 namespace App\Livewire\Admin;
 
-use Livewire\Component;
 use App\Models\User;
+use Livewire\Component;
+use Livewire\Attributes\Computed;
 use Illuminate\Support\Facades\Hash;
+use Google\Cloud\Firestore\FirestoreClient;
 
 class EditAdmin extends Component
 {
@@ -18,8 +20,6 @@ class EditAdmin extends Component
     public $rank;
     public $selectedCollection;
 
-    public $firebaseCollections = [];
-
     public function mount($id)
     {
         $user = User::findOrFail($id);
@@ -31,17 +31,6 @@ class EditAdmin extends Component
         $this->email = $user->email;
         $this->rank = $user->rank;
         $this->selectedCollection = $user->collection;
-
-        $this->firebaseCollections = $this->getCollections();
-    }
-
-    public function getCollections()
-    {
-        return [
-            'collection1',
-            'collection2',
-            'collection3',
-        ];
     }
 
     public function update()
@@ -49,7 +38,7 @@ class EditAdmin extends Component
         $this->validate([
             'first_name' => 'required',
             'last_name' => 'required',
-            'email' => 'required|email',
+            'email' => 'required|email|unique:users,email,' . $this->userId,
             'rank' => 'required',
         ]);
 
@@ -64,14 +53,42 @@ class EditAdmin extends Component
             'collection' => $this->selectedCollection,
         ];
 
-        // update password only if may laman
         if (!empty($this->password)) {
             $data['password'] = Hash::make($this->password);
         }
 
         $user->update($data);
 
+        $this->password = '';
+
         session()->flash('success', 'Admin updated successfully!');
+    }
+
+    #[Computed]
+    public function firebaseCollections()
+    {
+        $collections = [];
+
+        foreach ($this->firestore()->collections() as $collection) {
+            $collections[] = $collection->id();
+        }
+
+        return $collections;
+    }
+
+    protected function firestore(): FirestoreClient
+    {
+        $credentials = json_decode(env('FIREBASE_CREDENTIALS'), true);
+
+        $credentials['private_key'] = str_replace(
+            "\\n",
+            "\n",
+            $credentials['private_key']
+        );
+
+        return new FirestoreClient([
+            'keyFile' => $credentials,
+        ]);
     }
 
     public function render()

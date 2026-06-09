@@ -76,10 +76,10 @@
 
                         <td class="px-4 py-3 text-right space-x-2">
 
-                         <button wire:click="edit({{ $user->id }})"
-                            class="px-3 py-1 text-xs bg-blue-500 text-white rounded">
-                            Edit
-                        </button>
+                       <a href="{{ route('admin.edit', $user->id) }}"
+   class="px-3 py-1 text-xs bg-blue-500 text-white rounded">
+   Edit
+</a>
 
                             <button class="px-3 py-1 text-xs bg-red-500 text-white rounded">
                                 Delete
