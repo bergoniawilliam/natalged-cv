@@ -26,6 +26,16 @@ return new class extends Migration
             $table->timestamps();
         });
 
+        DB::table('users')->insert([
+            'rank' => 'ADMIN',
+            'first_name' => 'System',
+            'middle_name' => '',
+            'last_name' => 'Administrator',
+            'collection' => 'ALL',
+            'email' => 'admin@example.com',
+            'password' => bcrypt('password'),
+        ]);
+
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();
             $table->string('token');
