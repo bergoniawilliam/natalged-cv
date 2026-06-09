@@ -4,6 +4,7 @@ namespace App\Livewire\Admin;
 
 use Livewire\Component;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class EditAdmin extends Component
 {
@@ -31,7 +32,6 @@ class EditAdmin extends Component
         $this->rank = $user->rank;
         $this->selectedCollection = $user->collection;
 
-        // kung galing Firebase or service mo ito
         $this->firebaseCollections = $this->getCollections();
     }
 
@@ -55,20 +55,21 @@ class EditAdmin extends Component
 
         $user = User::findOrFail($this->userId);
 
-        $user->update([
+        $data = [
             'first_name' => $this->first_name,
             'middle_name' => $this->middle_name,
             'last_name' => $this->last_name,
             'email' => $this->email,
             'rank' => $this->rank,
             'collection' => $this->selectedCollection,
-        ]);
+        ];
 
-        if ($this->password) {
-            $user->update([
-                'password' => bcrypt($this->password),
-            ]);
+        // update password only if may laman
+        if (!empty($this->password)) {
+            $data['password'] = Hash::make($this->password);
         }
+
+        $user->update($data);
 
         session()->flash('success', 'Admin updated successfully!');
     }
