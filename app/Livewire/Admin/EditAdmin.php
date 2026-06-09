@@ -67,7 +67,7 @@ class EditAdmin extends Component
     #[Computed]
     public function firebaseCollections()
     {
-        $collections = [];
+        $collections = ['ALL'];
 
         foreach ($this->firestore()->collections() as $collection) {
             $collections[] = $collection->id();
