@@ -15,7 +15,7 @@ use App\Livewire\Users\Edituser;
 
 use App\Livewire\Bridges\Bridges;
 use App\Livewire\Bridges\Addbridge;
-use App\Livewire\Bridges\EditBridge;
+use App\Livewire\Bridges\Editbridge;
 
 use App\Livewire\BridgeWaterlevel\RefBridgeWaterlevel;
 use App\Livewire\BridgeWaterlevel\AddRefBridgeWaterlevel;
@@ -93,7 +93,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('addbridge');
 
         Route::middleware(['permission:bridges.update'])
-            ->get('/bridges/edit/{id}', EditBridge::class)
+            ->get('/bridges/edit/{id}', Editbridge::class)
             ->name('editbridge');
     });
 
