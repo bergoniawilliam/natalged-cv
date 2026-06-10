@@ -133,13 +133,13 @@
                         <span>Admin Accounts</span>
                     </a>
                     @endcan
-          
+                    @can('uac.view')
                     <flux:sidebar.item icon="shield-check"
                         :href="route('uac.roles')"
                         wire:navigate>
                         UAC Panel
                     </flux:sidebar.item>
-                  
+                    @endcan
                 </li>
             </flux:sidebar.nav>
 
