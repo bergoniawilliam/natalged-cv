@@ -5,7 +5,7 @@ namespace App\Livewire\Bridges;
 use Livewire\Component;
 use Kreait\Firebase\Factory;
 
-class Addbridge extends Component
+class AddBridge extends Component
 {
     public $ReferenceName, $BridgeID, $WaterLevel;
 
