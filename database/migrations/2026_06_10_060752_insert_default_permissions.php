@@ -8,6 +8,7 @@ return new class extends Migration
     public function up(): void
     {
         $modules = [
+            'uac',
             'dashboard',
             'admin',
             'users',
@@ -41,6 +42,7 @@ return new class extends Migration
     public function down(): void
     {
         $modules = [
+            'uac',
             'dashboard',
             'admin',
             'users',
