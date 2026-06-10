@@ -5,7 +5,7 @@ namespace App\Livewire\Users;
 use Livewire\Component;
 use Kreait\Firebase\Factory;
 
-class Adduser extends Component
+class AddUser extends Component
 {
     public $BWC;
     public $CallSign;
