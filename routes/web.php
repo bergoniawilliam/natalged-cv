@@ -10,8 +10,8 @@ use App\Livewire\Admin\AddAdmin;
 use App\Livewire\Admin\EditAdmin;
 
 use App\Livewire\Users\Users;
-use App\Livewire\Users\AddUser;
-use App\Livewire\Users\EditUser;
+use App\Livewire\Users\Adduser;
+use App\Livewire\Users\Edituser;
 
 use App\Livewire\Bridges\Bridges;
 use App\Livewire\Bridges\AddBridge;
@@ -75,11 +75,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/users', Users::class)->name('users');
 
         Route::middleware(['permission:users.create'])
-            ->get('/users/add', AddUser::class)
+            ->get('/users/add', Adduser::class)
             ->name('adduser');
 
         Route::middleware(['permission:users.update'])
-            ->get('/users/edit/{uid}/{collection}', EditUser::class)
+            ->get('/users/edit/{uid}/{collection}', Edituser::class)
             ->name('edituser');
     });
 
