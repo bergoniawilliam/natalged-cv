@@ -75,7 +75,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/users', Users::class)->name('users');
 
         Route::middleware(['permission:users.create'])
-            ->get('/users/add', Adduser::class)
+            ->get('/users/add', addUser::class)
             ->name('adduser');
 
         Route::middleware(['permission:users.update'])
