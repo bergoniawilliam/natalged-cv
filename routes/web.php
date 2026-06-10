@@ -2,88 +2,192 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Dashboard;
+
+use App\Livewire\Uac\RolePermissionPanel;
+
 use App\Livewire\Admin\Admin;
 use App\Livewire\Admin\AddAdmin;
 use App\Livewire\Admin\EditAdmin;
+
+use App\Livewire\Users\Users;
+use App\Livewire\Users\AddUser;
+use App\Livewire\Users\EditUser;
+
+use App\Livewire\Bridges\Bridges;
+use App\Livewire\Bridges\AddBridge;
+use App\Livewire\Bridges\EditBridge;
+
+use App\Livewire\BridgeWaterlevel\RefBridgeWaterlevel;
+use App\Livewire\BridgeWaterlevel\AddRefBridgeWaterlevel;
+use App\Livewire\BridgeWaterlevel\EditRefBridgeWaterlevel;
+
+use App\Livewire\Road\Roads;
+use App\Livewire\Road\AddRoads;
+use App\Livewire\Road\EditRoads;
+
+use App\Livewire\Evacuation\Evacuation;
+use App\Livewire\Evacuation\AddEvacuation;
+use App\Livewire\Evacuation\EditEvacuation;
+
+use App\Livewire\Relation\Relation;
+use App\Livewire\Relation\AddRelation;
+use App\Livewire\Relation\EditRelation;
+
+use App\Livewire\BridgeAffected\BridgesAffected;
+use App\Livewire\BridgeAffected\AddBridgesAffected;
+use App\Livewire\BridgeAffected\EditBridgesAffected;
+
+use App\Livewire\BarangayAffected\BarangayAffected;
+use App\Livewire\BarangayAffected\AddBarangayAffected;
+use App\Livewire\BarangayAffected\EditBarangayAffected;
+
 Route::view('/', 'welcome')->name('home');
 
-Route::middleware(['auth', 'verified'])
-->group(function(){
-    // Route::view('dashboard', 'dashboard')->name('dashboard');
-    Route::get('/dashboard', Dashboard::class)->name('dashboard');
+Route::middleware(['auth', 'verified'])->group(function () {
 
-    Route::middleware(['auth'])->get('/admin/users', Admin::class)->name('admin.users');
-    Route::middleware(['auth'])->get('/admin/add', AddAdmin::class)->name('admin.add');
-    Route::get('/admin/users/edit/{id}', EditAdmin::class)->name('admin.edit');
+    // UAC PANEL
+    Route::middleware(['permission:uac.view'])
+    ->get('/uac/roles', RolePermissionPanel::class)
+    ->name('uac.roles');
 
+    // ================= DASHBOARD =================
+    Route::middleware(['permission:dashboard.view'])
+    ->get('/dashboard', Dashboard::class)
+    ->name('dashboard');
 
-    Route::livewire('users', 'users')->name('users');
-    Route::livewire('adduser', 'users.adduser')->name('adduser');
-    Route::livewire('users/edit/{uid}/{collection}', 'users.edituser')->name('edituser');
+    // ================= ADMIN USERS =================
+    Route::middleware(['permission:admin.view'])->group(function () {
 
+        Route::get('/admin/users', Admin::class)->name('admin.users');
 
-    Route::livewire('bridges', 'bridges')->name('bridges');
-    Route::livewire('addbridge', 'bridges.addbridge')->name('addbridge');
-    Route::livewire('bridges/edit/{id}', 'bridges.editbridge')->name('editbridge');
+        Route::middleware(['permission:admin.create'])
+            ->get('/admin/add', AddAdmin::class)
+            ->name('admin.add');
 
-   Route::livewire('/RefBridgeWaterlevel','bridge-waterlevel.ref-bridge-waterlevel')->name('RefBridgeWaterlevel');});
-    Route::livewire(
-        '/AddRefBridgeWaterlevel',
-        'bridge-waterlevel.add-ref-bridge-waterlevel'
-    )->name('AddRefBridgeWaterlevel');
-    Route::livewire(
-        '/EditRefBridgeWaterlevel/{id}',
-        'bridge-waterlevel.edit-ref-bridge-waterlevel'
-    )->name('EditRefBridgeWaterlevel'); 
+        Route::middleware(['permission:admin.update'])
+            ->get('/admin/users/edit/{id}', EditAdmin::class)
+            ->name('admin.edit');
+    });
 
-    Route::livewire(
-        '/Roads', 
-        'road.roads'
-    )->name('Roads');
-    Route::livewire('/addRoad', 'road.add-roads')->name('addRoad');
-    Route::livewire('/editRoad/{id}', 'road.edit-roads')->name('editRoad');
+    // ================= USERS MODULE =================
+    Route::middleware(['permission:users.view'])->group(function () {
 
-    Route::livewire(
-        '/Evacuation',
-        'evacuation.evacuation'
-    )->name('Evacuation');
-    Route::livewire('/addEvacuation', 'evacuation.add-evacuation')->name('addEvacuation');
-    Route::livewire('/editEvacuation/{id}', 'evacuation.edit-Evacuation')->name('editEvacuation');
+        Route::get('/users', Users::class)->name('users');
 
+        Route::middleware(['permission:users.create'])
+            ->get('/users/add', AddUser::class)
+            ->name('adduser');
 
-    Route::livewire(
-        '/Relation',
-        'relation.relation'
-    )->name('Relation');
-    Route::livewire(
-        '/addRelation',
-        'relation.add-relation'
-    )->name('addRelation');
-    Route::livewire('/editRelation/{id}', 'relation.edit-relation')->name('editRelation');
+        Route::middleware(['permission:users.update'])
+            ->get('/users/edit/{uid}/{collection}', EditUser::class)
+            ->name('edituser');
+    });
 
+    // ================= BRIDGES =================
+    Route::middleware(['permission:bridges.view'])->group(function () {
 
-    Route::livewire(
-        '/affected-bridge',
-        'bridge-affected.bridges-affected'
-    )->name('affected-bridge');
-    Route::livewire(
-        '/affected-bridge/edit/{id}',
-        'bridge-affected.edit-bridges-affected'
-    )->name('editAffectedBridge');
-    Route::livewire(
-        '/addAffectedBridge',
-        'bridge-affected.add-bridges-affected'
-    )->name('addAffectedBridge'); 
+        Route::get('/bridges', Bridges::class)->name('bridges');
 
+        Route::middleware(['permission:bridges.create'])
+            ->get('/bridges/add', AddBridge::class)
+            ->name('addbridge');
 
-    Route::livewire(
-        '/barangay-affected',
-        'barangay-affected.barangay-affected'
-    )->name('barangay-affected');
-    Route::livewire('/barangay-affected/add', 'barangay-affected.add-barangay-affected')->name('addBarangayAffected');
+        Route::middleware(['permission:bridges.update'])
+            ->get('/bridges/edit/{id}', EditBridge::class)
+            ->name('editbridge');
+    });
 
-Route::livewire('/barangay-affected/edit/{id}', 'barangay-affected.edit-barangay-affected')->name('editBarangayAffected');
-        
+    // ================= WATERLEVEL =================
+    Route::middleware(['permission:waterlevel.view'])->group(function () {
 
+        Route::get('/ref-bridge-waterlevel', RefBridgeWaterlevel::class)
+            ->name('RefBridgeWaterlevel');
+
+        Route::middleware(['permission:waterlevel.create'])
+            ->get('/ref-bridge-waterlevel/add', AddRefBridgeWaterlevel::class)
+            ->name('AddRefBridgeWaterlevel');
+
+        Route::middleware(['permission:waterlevel.update'])
+            ->get('/ref-bridge-waterlevel/edit/{id}', EditRefBridgeWaterlevel::class)
+            ->name('EditRefBridgeWaterlevel');
+    });
+
+    // ================= ROADS =================
+    Route::middleware(['permission:roads.view'])->group(function () {
+
+        Route::get('/roads', Roads::class)->name('Roads');
+
+        Route::middleware(['permission:roads.create'])
+            ->get('/roads/add', AddRoads::class)
+            ->name('addRoad');
+
+        Route::middleware(['permission:roads.update'])
+            ->get('/roads/edit/{id}', EditRoads::class)
+            ->name('editRoad');
+    });
+
+    // ================= EVACUATION =================
+    Route::middleware(['permission:evacuation.view'])->group(function () {
+
+        Route::get('/evacuation', Evacuation::class)->name('Evacuation');
+
+        Route::middleware(['permission:evacuation.create'])
+            ->get('/evacuation/add', AddEvacuation::class)
+            ->name('addEvacuation');
+
+        Route::middleware(['permission:evacuation.update'])
+            ->get('/evacuation/edit/{id}', EditEvacuation::class)
+            ->name('editEvacuation');
+    });
+
+    // ================= RELATION =================
+    Route::middleware(['permission:relation.view'])->group(function () {
+
+        Route::get('/relation', Relation::class)->name('Relation');
+
+        Route::middleware(['permission:relation.create'])
+            ->get('/relation/add', AddRelation::class)
+            ->name('addRelation');
+
+        Route::middleware(['permission:relation.update'])
+            ->get('/relation/edit/{id}', EditRelation::class)
+            ->name('editRelation');
+    });
+
+    // ================= AFFECTED BRIDGE =================
+    Route::middleware(['permission:affected-bridge.view'])->group(function () {
+
+        Route::get('/affected-bridge', BridgesAffected::class)
+            ->name('affected-bridge');
+
+        Route::middleware(['permission:affected-bridge.create'])
+            ->get('/affected-bridge/add', AddBridgesAffected::class)
+            ->name('addAffectedBridge');
+
+        Route::middleware(['permission:affected-bridge.update'])
+            ->get('/affected-bridge/edit/{id}', EditBridgesAffected::class)
+            ->name('editAffectedBridge');
+    });
+
+    // ================= BARANGAY =================
+    Route::middleware(['permission:barangay-affected.view'])->group(function () {
+
+        Route::get('/barangay-affected', BarangayAffected::class)
+            ->name('barangay-affected');
+
+        Route::middleware(['permission:barangay-affected.create'])
+            ->get('/barangay-affected/add', AddBarangayAffected::class)
+            ->name('addBarangayAffected');
+
+        Route::middleware(['permission:barangay-affected.update'])
+            ->get('/barangay-affected/edit/{id}', EditBarangayAffected::class)
+            ->name('editBarangayAffected');
+    });
+
+     
+
+    
+
+});
 
 require __DIR__.'/settings.php';

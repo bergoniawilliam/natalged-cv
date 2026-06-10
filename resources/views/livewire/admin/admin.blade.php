@@ -6,7 +6,9 @@
         <h1 class="text-xl font-bold">Users</h1>
          <a href="{{ route('admin.add') }}"
            class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">
-
+@if(auth()->user()->hasRole('Admin'))
+    <a href="#">Admin Menu</a>
+@endif
             + Add User
         </a>
         <input

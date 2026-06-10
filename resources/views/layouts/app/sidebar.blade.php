@@ -12,35 +12,106 @@
 
                         <flux:sidebar.nav>
                 <flux:sidebar.group :heading="__('Platform')" class="grid">
-                    <flux:sidebar.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
+
+                    {{-- DASHBOARD --}}
+                    @can('dashboard.view')
+                    <flux:sidebar.item icon="home"
+                        :href="route('dashboard')"
+                        :current="request()->routeIs('dashboard')"
+                        wire:navigate>
                         {{ __('Dashboard') }}
                     </flux:sidebar.item>
-                    <flux:sidebar.item icon="users" :href="route('users')" :current="request()->routeIs('users')" wire:navigate>
-                        {{ __('Users') }}
+                    @endcan
+
+
+                    {{-- USERS / PATROLLERS --}}
+                    @can('users.view')
+                    <flux:sidebar.item icon="users"
+                        :href="route('users')"
+                        :current="request()->routeIs('users')"
+                        wire:navigate>
+                        {{ __('Patrollers/Commanders') }}
                     </flux:sidebar.item>
-                      <flux:sidebar.item icon="archive-box-arrow-down" :href="route('Relation')" :current="request()->routeIs('Relation')" wire:navigate>
+                    @endcan
+
+
+                    {{-- RELATION --}}
+                    @can('relation.view')
+                    <flux:sidebar.item icon="archive-box-arrow-down"
+                        :href="route('Relation')"
+                        :current="request()->routeIs('Relation')"
+                        wire:navigate>
                         {{ __('Relation') }}
                     </flux:sidebar.item>
-                    <flux:sidebar.item icon="clipboard-document" :href="route('bridges')" :current="request()->routeIs('bridges')" wire:navigate>
+                    @endcan
+
+
+                    {{-- BRIDGES --}}
+                    @can('bridges.view')
+                    <flux:sidebar.item icon="clipboard-document"
+                        :href="route('bridges')"
+                        :current="request()->routeIs('bridges')"
+                        wire:navigate>
                         {{ __('Bridges') }}
                     </flux:sidebar.item>
-                    <flux:sidebar.item icon="clipboard-document" :href="route('RefBridgeWaterlevel')" :current="request()->routeIs('RefBridgeWaterlevel')" wire:navigate>
+                    @endcan
+
+
+                    {{-- WATERLEVEL --}}
+                    @can('bridges.view')
+                    <flux:sidebar.item icon="clipboard-document"
+                        :href="route('RefBridgeWaterlevel')"
+                        :current="request()->routeIs('RefBridgeWaterlevel')"
+                        wire:navigate>
                         {{ __('RefBridgeWaterlevel') }}
                     </flux:sidebar.item>
-                    <flux:sidebar.item icon="archive-box-arrow-down" :href="route('Roads')" :current="request()->routeIs('Roads')" wire:navigate>
+                    @endcan
+
+
+                    {{-- ROADS --}}
+                    @can('roads.view')
+                    <flux:sidebar.item icon="archive-box-arrow-down"
+                        :href="route('Roads')"
+                        :current="request()->routeIs('Roads')"
+                        wire:navigate>
                         {{ __('Roads') }}
                     </flux:sidebar.item>
-                    <flux:sidebar.item icon="archive-box-arrow-down" :href="route('Evacuation')" :current="request()->routeIs('Evacuation')" wire:navigate>
+                    @endcan
+
+
+                    {{-- EVACUATION --}}
+                    @can('evacuation.view')
+                    <flux:sidebar.item icon="archive-box-arrow-down"
+                        :href="route('Evacuation')"
+                        :current="request()->routeIs('Evacuation')"
+                        wire:navigate>
                         {{ __('Evacuation') }}
                     </flux:sidebar.item>
-                   
-                     <flux:sidebar.item icon="archive-box-arrow-down" :href="route('affected-bridge')" :current="request()->routeIs('affected-bridge')" wire:navigate>
+                    @endcan
+
+
+                    {{-- AFFECTED BRIDGE --}}
+                    @can('affected-bridge.view')
+                    <flux:sidebar.item icon="archive-box-arrow-down"
+                        :href="route('affected-bridge')"
+                        :current="request()->routeIs('affected-bridge')"
+                        wire:navigate>
                         {{ __('Affected Bridge') }}
                     </flux:sidebar.item>
-                     <flux:sidebar.item icon="archive-box-arrow-down" :href="route('barangay-affected')" :current="request()->routeIs('barangay-affected')" wire:navigate>
+                    @endcan
+
+
+                    {{-- BARANGAY --}}
+                    @can('barangay-affected.view')
+                    <flux:sidebar.item icon="archive-box-arrow-down"
+                        :href="route('barangay-affected')"
+                        :current="request()->routeIs('barangay-affected')"
+                        wire:navigate>
                         {{ __('Affected Barangay') }}
                     </flux:sidebar.item>
-                </flux:sidebar.group> 
+                    @endcan
+
+                </flux:sidebar.group>
             </flux:sidebar.nav>
 
             <flux:spacer />
@@ -53,14 +124,22 @@
                 <flux:sidebar.item icon="book-open-text" href="https://laravel.com/docs/starter-kits#livewire" target="_blank">
                     {{ __('Documentation') }}
                 </flux:sidebar.item> -->
-                                <li>
+                    @can('admin.view')
+                    <li>
                     <a href="{{ route('admin.users') }}"
                     class="flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-200">
 
                         <span>👤</span>
                         <span>Admin Accounts</span>
-
                     </a>
+                    @endcan
+                    @can('uac.view')
+                    <flux:sidebar.item icon="shield-check"
+                        :href="route('uac.roles')"
+                        wire:navigate>
+                        UAC Panel
+                    </flux:sidebar.item>
+                    @endcan
                 </li>
             </flux:sidebar.nav>
 
@@ -103,6 +182,11 @@
                             {{ __('Settings') }}
                         </flux:menu.item>
                     </flux:menu.radio.group>
+
+                     {{-- UAC PANEL --}}
+                    <flux:menu.item :href="route('uac.roles')" icon="shield-check" wire:navigate>
+                        UAC Panel
+                    </flux:menu.item>
 
                     <flux:menu.separator />
 

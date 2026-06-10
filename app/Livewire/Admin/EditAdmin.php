@@ -4,8 +4,8 @@ namespace App\Livewire\Admin;
 
 use App\Models\User;
 use Livewire\Component;
-use Livewire\Attributes\Computed;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 use Google\Cloud\Firestore\FirestoreClient;
 
 class EditAdmin extends Component
@@ -20,17 +20,27 @@ class EditAdmin extends Component
     public $rank;
     public $selectedCollection;
 
+    public $role = null;      // selected role
+    public $roles = [];       // dropdown roles
+
     public function mount($id)
     {
-        $user = User::findOrFail($id);
+        $user = User::with('roles')->findOrFail($id);
 
         $this->userId = $user->id;
+
         $this->first_name = $user->first_name;
         $this->middle_name = $user->middle_name;
         $this->last_name = $user->last_name;
         $this->email = $user->email;
         $this->rank = $user->rank;
         $this->selectedCollection = $user->collection;
+
+        // current role
+        $this->role = $user->roles->first()?->name;
+
+        // ALL roles for dropdown
+        $this->roles = Role::pluck('name')->toArray();
     }
 
     public function update()
@@ -59,12 +69,17 @@ class EditAdmin extends Component
 
         $user->update($data);
 
+        // ROLE SYNC (Spatie)
+        if ($this->role) {
+            $user->syncRoles([$this->role]);
+        }
+
         $this->password = '';
 
         session()->flash('success', 'Admin updated successfully!');
     }
 
-    #[Computed]
+    // Firebase collections
     public function firebaseCollections()
     {
         $collections = ['ALL'];
@@ -80,11 +95,7 @@ class EditAdmin extends Component
     {
         $credentials = json_decode(env('FIREBASE_CREDENTIALS'), true);
 
-        $credentials['private_key'] = str_replace(
-            "\\n",
-            "\n",
-            $credentials['private_key']
-        );
+        $credentials['private_key'] = str_replace("\\n", "\n", $credentials['private_key']);
 
         return new FirestoreClient([
             'keyFile' => $credentials,

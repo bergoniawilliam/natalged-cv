@@ -14,12 +14,11 @@ class AddAdmin extends Component
     public $middle_name;
     public $last_name;
     public $rank;
-    public $collection;
     public $email;
     public $password;
-    public $role = 'Admin';
 
-    public $selectedCollection; // ✅ ADD THIS
+    public $selectedCollection;
+    public $role = 'Admin';
 
     public function save()
     {
@@ -28,6 +27,9 @@ class AddAdmin extends Component
             'last_name' => 'required',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6',
+            'rank' => 'required',
+            'selectedCollection' => 'required',
+            'role' => 'required',
         ]);
 
         $user = User::create([
@@ -35,18 +37,26 @@ class AddAdmin extends Component
             'first_name' => $this->first_name,
             'middle_name' => $this->middle_name,
             'last_name' => $this->last_name,
-            'collection' => $this->selectedCollection, // optional fix
+            'collection' => $this->selectedCollection,
             'email' => $this->email,
             'password' => Hash::make($this->password),
         ]);
 
-        if (method_exists($user, 'assignRole')) {
-            $user->assignRole($this->role);
-        }
+        $user->assignRole($this->role);
 
-        session()->flash('success', 'Admin created successfully!');
+        session()->flash('success', 'User created successfully!');
 
-        $this->reset();
+        $this->reset([
+            'first_name',
+            'middle_name',
+            'last_name',
+            'rank',
+            'email',
+            'password',
+            'selectedCollection',
+        ]);
+
+        $this->role = 'Admin';
     }
 
     #[Computed]
