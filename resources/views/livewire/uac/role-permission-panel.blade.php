@@ -2,12 +2,7 @@
 
     <h1 class="text-xl font-bold">UAC Panel</h1>
 
-    {{-- SUCCESS MESSAGE --}}
-    @if (session()->has('success'))
-        <div class="text-green-600 font-medium">
-            {{ session('success') }}
-        </div>
-    @endif
+   
 
     {{-- ROLE SELECT --}}
     <div>
@@ -56,5 +51,11 @@
             Save Permissions
         </button>
     </div>
+     {{-- SUCCESS MESSAGE --}}
+    @if (session()->has('success'))
+        <div class="text-green-600 font-medium">
+            {{ session('success') }}
+        </div>
+    @endif
 
 </div>
