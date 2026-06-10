@@ -74,10 +74,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::get('/users', Users::class)->name('users');
 
-        Route::middleware(['permission:users.create'])
-            ->get('/users/add', AddUser::class)
-            ->name('adduser');
-
+        Route::middleware(['permission:bridges.create'])
+            ->get('/bridges/add', AddBridge::class)
+            ->name('addbridge');
         Route::middleware(['permission:users.update'])
             ->get('/users/edit/{uid}/{collection}', Edituser::class)
             ->name('edituser');
