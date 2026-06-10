@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Bridges;
 
+
 use Livewire\Component;
 use Kreait\Firebase\Factory;
 
