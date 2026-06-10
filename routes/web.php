@@ -14,7 +14,7 @@ use App\Livewire\Users\Adduser;
 use App\Livewire\Users\Edituser;
 
 use App\Livewire\Bridges\Bridges;
-use App\Livewire\Bridges\AddBridge;
+use App\Livewire\Bridges\Addbridge;
 use App\Livewire\Bridges\EditBridge;
 
 use App\Livewire\BridgeWaterlevel\RefBridgeWaterlevel;
@@ -89,7 +89,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/bridges', Bridges::class)->name('bridges');
 
         Route::middleware(['permission:bridges.create'])
-            ->get('/bridges/add', AddBridge::class)
+            ->get('/bridges/add', Addbridge::class)
             ->name('addbridge');
 
         Route::middleware(['permission:bridges.update'])
