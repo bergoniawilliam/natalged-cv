@@ -9,7 +9,6 @@ use Livewire\WithoutUrlPagination;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Kreait\Firebase\Auth;
 use Kreait\Firebase\Factory;
-use Google\Cloud\CloudCore\Timestamp;
 use Google\Cloud\Firestore\FirestoreClient;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -21,20 +20,74 @@ class Users extends Component
     public $confirmPassword = '';
     public $message = '';
     public $messageType = '';
-
+    public $users = [];
+    public $selectedCollection = 'Administrators';
     public $perPage = 10;
     public $query = '';
-
-    public $selectedCollection; // 🔥 FIXED
+    public $firebase_collections = [
+        'Administrators',
+        'BatanesPPO',
+        'CPPO',
+        'IPPO',
+        'NVPPO',
+        'QPPO',
+        'SCPO',
+    ];
+    public $isLocked = false;
+    public $confirmingDelete = false;
+    public $deleteId;
 
     protected $queryString = ['query'];
 
-    // =========================
-    // INIT
-    // =========================
+    public $Name = '';
+    public $Rank = '';
+    public $Role = '';
+    public $email = '';
+    public $password = '';
+    public $ContactNo = '';
+    public $Unit = '';
+    public $SubUnit = '';
+    public $Station = '';
+    public $CallSign = '';
+    public $Payslip = '';
+    public $BWC = '';
+
+    public $passwordUserId = null;
+
+    public $showPasswordModal = false;
+
+    public $selectedUserId = null;
+
+    public $selectedUserName = null;
+
+    public $selectedUserRank = null;
+
     public function mount()
     {
-        $this->selectedCollection = auth()->user()->collection;
+         $userCollection = auth()->user()->collection;
+
+        $allCollections = [
+            'Administrators',
+            'BatanesPPO',
+            'CPPO',
+            'IPPO',
+            'NVPPO',
+            'QPPO',
+            'SCPO',
+        ];
+
+        if ($userCollection === 'ALL') {
+
+            $this->firebase_collections = $allCollections;
+            $this->selectedCollection = 'Administrators';
+            $this->isLocked = false;
+
+        } else {
+
+            $this->firebase_collections = [$userCollection];
+            $this->selectedCollection = $userCollection;
+            $this->isLocked = true;
+        }
     }
 
     public function render()
@@ -42,66 +95,97 @@ class Users extends Component
         return view('livewire.users.users');
     }
 
-    // =========================
-    // COLLECTION LOCK (NO SWITCH)
-    // =========================
-    public function updatedSelectedCollection()
-    {
-        $this->selectedCollection = auth()->user()->collection;
-        $this->resetPage();
-    }
-
-    // =========================
-    // ADD USER REDIRECT
-    // =========================
     public function addUser()
     {
         return redirect()->route('adduser');
     }
 
-    // =========================
-    // DELETE USER (FIXED)
-    // =========================
-    public function deleteUser($uid)
+    // public function confirmDelete($id)
+    // {
+    //     $this->deleteId = $id;
+    //     $this->emit('triggerDeleteConfirmation');
+    // }
+
+    // public function deleteUser($uid)
+    // {
+    //     $db = $this->firestore();
+    //     $auth = $this->firebaseAuth();
+
+    //     try {
+    //         $db->collection($this->selectedCollection)->document($uid)->delete();
+    //         $auth->deleteUser($uid);
+
+    //         $this->resetPage();
+
+    //         // Simple session flash lang
+    //         session()->flash('message', 'User deleted successfully.');
+    //     } catch (\Exception $e) {
+    //         session()->flash('error', 'Error deleting user: ' . $e->getMessage());
+    //     }
+    // }
+
+    public function setDeleteId($id)
+    {
+        $this->deleteId = $id;
+    }
+    public function deleteUser()
     {
         $db = $this->firestore();
         $auth = $this->firebaseAuth();
 
-        $collection = auth()->user()->collection;
-
         try {
-            $db->collection($collection)
-                ->document($uid)
+            if (!$this->deleteId) return;
+
+            $db->collection($this->selectedCollection)
+                ->document($this->deleteId)
                 ->delete();
 
-            $auth->deleteUser($uid);
+            $auth->deleteUser($this->deleteId);
+
+            session()->flash('message', 'User deleted successfully.');
+
+            $this->deleteId = null;
 
             $this->resetPage();
 
-            session()->flash('message', 'User deleted successfully.');
+            return redirect()->route('users');
+
         } catch (\Exception $e) {
             session()->flash('error', 'Error deleting user: ' . $e->getMessage());
         }
     }
+    public function updatedSelectedCollection()
+    {
+        $this->resetPage();
+    }
 
-    // =========================
-    // SEARCH RESET
-    // =========================
     public function updatingQuery()
     {
         $this->resetPage();
     }
 
-    // =========================
-    // PASSWORD RESET UI
-    // =========================
-    public function openChangePasswordModal()
+    public function openChangePasswordModal($uid, $name = null, $rank = null)
     {
         $this->reset(['message','messageType','newPassword','confirmPassword']);
-    }
 
-    public function changePassword($uid)
+        $this->selectedUserId = $uid;
+        $this->selectedUserName = $name;
+        $this->selectedUserRank = $rank;
+
+        $this->showPasswordModal = true;
+    }
+    public function closeChangePasswordModal()
     {
+        $this->showPasswordModal = false;
+    }
+    public function changePassword()
+    {
+        if (!$this->selectedUserId) {
+            $this->message = "No user selected.";
+            $this->messageType = "error";
+            return;
+        }
+
         $this->validate([
             'newPassword' => 'required|min:8|same:confirmPassword'
         ]);
@@ -109,25 +193,29 @@ class Users extends Component
         try {
             $auth = $this->firebaseAuth();
 
-            $auth->updateUser($uid, [
+            $auth->updateUser($this->selectedUserId, [
                 'password' => $this->newPassword
             ]);
 
-            $this->reset(['newPassword','confirmPassword']);
+          session()->flash('message', 'Password updated successfully.');
 
-            $this->message = "Password changed successfully.";
-            $this->messageType = "success";
+            $this->reset([
+                'newPassword',
+                'confirmPassword',
+                'selectedUserId',
+                'selectedUserName'
+            ]);
 
-            $this->dispatch('close-password-modal');
+            $this->showPasswordModal = false;
 
         } catch (\Exception $e) {
-            $this->message = "Password change failed.";
+            $this->message = "Password change failed: " . $e->getMessage();
             $this->messageType = "error";
         }
     }
 
     // =========================
-    // FIRESTORE CLIENT
+    // FIRESTORE
     // =========================
     protected function firestore(): FirestoreClient
     {
@@ -141,9 +229,9 @@ class Users extends Component
     }
 
     // =========================
-    // FIREBASE AUTH
+    // AUTH
     // =========================
-    protected function firebaseAuth(): Auth
+    protected function firebaseAuth()
     {
         $credentials = json_decode(env('FIREBASE_CREDENTIALS'), true);
 
@@ -154,47 +242,42 @@ class Users extends Component
             ->createAuth();
     }
 
-    // =========================
-    // FIRESTORE CLEAN CONVERTER
-    // =========================
+
     protected function firestoreToArray(array $data): array
     {
         foreach ($data as $key => $value) {
-
             if (is_array($value)) {
                 $data[$key] = $this->firestoreToArray($value);
-
-            } elseif ($value instanceof Timestamp) {
+            } elseif ($value instanceof \Google\Cloud\Core\Timestamp) {
                 $data[$key] = $value->get()->format('M d, Y');
-
-            } elseif (is_object($value) && method_exists($value, 'toDateTime')) {
+            } elseif (method_exists($value, 'toDateTime')) {
                 $data[$key] = $value->toDateTime()->format('M d, Y');
-
-            } else {
+            } elseif (is_scalar($value) || $value === null) {
                 $data[$key] = $value;
+            } else {
+                $data[$key] = null;
             }
         }
-
         return $data;
     }
 
-    // =========================
-    // LOAD USERS (LOCKED COLLECTION)
-    // =========================
+    /**
+     * Load users with server-side pagination
+     */
     public function loadUsers($pageSize = null, $startAfter = null)
     {
         $db = $this->firestore();
         $pageSize = $pageSize ?? $this->perPage;
 
-        $collection = auth()->user()->collection; // 🔥 LOCKED
+        $query = $db->collection($this->selectedCollection);
 
-        $query = $db->collection($collection);
-
+        // Prefix search for "Name"
         if ($this->query) {
             $query = $query->where('Name', '>=', $this->query)
                            ->where('Name', '<=', $this->query . "\uf8ff");
         }
 
+        // Pagination
         if ($startAfter) {
             $query = $query->startAfter($startAfter);
         }
@@ -207,10 +290,8 @@ class Users extends Component
 
         foreach ($documents as $doc) {
             if (!$doc->exists()) continue;
-
             $data = $this->firestoreToArray($doc->data());
             $data['_id'] = $doc->id();
-
             $users[] = $data;
             $lastDoc = $doc;
         }
@@ -221,71 +302,93 @@ class Users extends Component
         ];
     }
 
-    // =========================
-    // COUNT USERS
-    // =========================
+    /**
+     * Total users count for paginator
+     */
     protected function countTotalUsers()
     {
         $db = $this->firestore();
-
-        $collection = auth()->user()->collection;
-
-        $documents = $db->collection($collection)->documents();
-
+        $documents = $db->collection($this->selectedCollection)->documents();
         $count = 0;
-
         foreach ($documents as $doc) {
             if ($doc->exists()) $count++;
         }
-
         return $count;
     }
 
-    // =========================
-    // PAGINATED COLLECTION
-    // =========================
     #[Computed]
     public function collections()
     {
-        $page = $this->getPage();
-        $pageSize = $this->perPage;
+        $db = $this->firestore();
+        $query = $db->collection($this->selectedCollection);
 
-        $startAfter = session()->get("users_start_after_page_{$page}", null);
+        // Remove the Firestore where() query entirely
+        $documents = $query->documents();
 
-        $result = $this->loadUsers($pageSize, $startAfter);
-
-        $users = collect($result['users']);
-
-        if ($result['lastDoc']) {
-            session()->put("users_start_after_page_" . ($page + 1), $result['lastDoc']);
+        $users = [];
+        foreach ($documents as $doc) {
+            if (!$doc->exists()) continue;
+            $data = $this->firestoreToArray($doc->data());
+            $data['_id'] = $doc->id();
+            $users[] = $data;
         }
 
+        // Filter in PHP — case-insensitive, partial match
+       if ($this->query) {
+            $search = strtolower($this->query);
+            $users = array_values(array_filter($users, function ($user) use ($search) {
+                $searchable = [
+                    $user['Name'] ?? '',
+                    $user['email'] ?? '',
+                    $user['Rank'] ?? '',
+                    $user['CallSign'] ?? '',
+                    $user['Unit'] ?? '',
+                    $user['SubUnit'] ?? '',
+                    $user['Role'] ?? '',
+                    $user['Station'] ?? '',
+                    $user['ContactNo'] ?? '',
+                    $user['Payslip'] ?? '',
+                ];
+
+                foreach ($searchable as $field) {
+                    if (str_contains(strtolower($field), $search)) {
+                        return true;
+                    }
+                }
+
+                return false;
+            }));
+        }
+
+        $page = $this->getPage();
+        $perPage = $this->perPage;
+        $total = count($users);
+        $offset = ($page - 1) * $perPage;
+        $items = array_slice($users, $offset, $perPage);
+
         return new LengthAwarePaginator(
-            $users,
-            $this->countTotalUsers(),
-            $pageSize,
+            $items,
+            $total,
+            $perPage,
             $page,
             ['path' => request()->url(), 'pageName' => 'page']
         );
     }
-
-    // =========================
-    // CSV EXPORT
-    // =========================
+    public function updatedPerPage()
+    {
+        $this->resetPage();
+    }
+    /**
+     * CSV export
+     */
     public function exportCsv(): StreamedResponse
     {
-        $db = $this->firestore();
-        $collection = auth()->user()->collection;
-
-        $filename = 'users_' . $collection . '_' . now()->format('Ymd_His') . '.csv';
-
-        $result = $this->loadUsers($this->perPage * 50);
+        $filename = 'users_' . $this->selectedCollection . '_' . now()->format('Ymd_His') . '.csv';
+        $result = $this->loadUsers($this->perPage * 100); // fetch more for export
         $users = $result['users'];
 
         return response()->streamDownload(function () use ($users) {
-
             $handle = fopen('php://output', 'w');
-
             fputcsv($handle, [
                 'Email','Rank','Name','SubUnit','Unit','Role','Station','BWC',
                 'CallSign','ContactNo','Payslip','Created At',
@@ -309,9 +412,52 @@ class Users extends Component
             }
 
             fclose($handle);
-
-        }, $filename, [
-            'Content-Type' => 'text/csv'
-        ]);
+        }, $filename, ['Content-Type' => 'text/csv']);
     }
+    public function saveUser()
+    {
+        $this->validate([
+            'Name'      => 'required|string',
+            'Rank'      => 'required|string',
+            'email'     => 'required|email',
+            'password'  => 'required|min:8',
+        ]);
+
+        try {
+            $auth = $this->firebaseAuth();
+            $db   = $this->firestore();
+
+            $createdUser = $auth->createUserWithEmailAndPassword($this->email, $this->password);
+            $uid = $createdUser->uid;
+
+            $db->collection($this->selectedCollection)->document($uid)->set([
+                'Name'      => $this->Name,
+                'Rank'      => $this->Rank,
+                'Role'      => $this->Role,
+                'email'     => $this->email,
+                'ContactNo' => $this->ContactNo,
+                'Unit'      => $this->Unit,
+                'SubUnit'   => $this->SubUnit,
+                'Station'   => $this->Station,
+                'CallSign'  => $this->CallSign,
+                'Payslip'   => $this->Payslip,
+                'BWC'       => $this->BWC,
+                'CreatedAt' => now()->toDateTimeString(),
+            ]);
+            session()->flash('message', 'User added successfully.');
+            
+            $this->reset([
+                'Name','Rank','Role','email','password',
+                'ContactNo','Unit','SubUnit','Station',
+                'CallSign','Payslip','BWC',
+            ]);
+
+            return redirect()->route('users');
+            
+
+        } catch (\Exception $e) {
+            session()->flash('error', 'Error adding user: ' . $e->getMessage());
+        }
+    }
+  
 }

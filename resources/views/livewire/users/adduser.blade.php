@@ -21,19 +21,21 @@
             </flux:callout>
         @endif
 
-        {{-- COLLECTION (READ ONLY) --}}
-        <div class="space-y-1">
-            <flux:label>Collection</flux:label>
-            <flux:input
-                value="{{ auth()->user()->collection }}"
-                readonly
-                class="bg-zinc-100 dark:bg-zinc-800"
-            />
-        </div>
+        <select
+            wire:model="selectedCollection"
+            class="w-full border rounded px-3 py-2"
+            {{ $isLocked ? 'disabled' : '' }}
+        >
+            @foreach($firebase_collections as $collection)
+                <option value="{{ $collection }}">
+                    {{ $collection }}
+                </option>
+            @endforeach
+        </select>
+    
 
         <form wire:submit.prevent="saveUser" class="space-y-6">
 
-            {{-- GRID --}}
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 
                 <flux:input label="BWC" wire:model="BWC" />
@@ -54,7 +56,6 @@
 
             </div>
 
-            {{-- ACTIONS --}}
             <div class="flex justify-end gap-3 pt-4 border-t">
 
                 <flux:button variant="ghost" href="{{ route('users') }}">

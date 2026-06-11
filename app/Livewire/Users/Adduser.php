@@ -19,13 +19,24 @@ class AddUser extends Component
     public $Unit;
     public $email;
     public $password;
+    public $isLocked;
 
     public $selectedCollection;
 
+    public $firebase_collections = [
+        'Administrators',
+        'BatanesPPO',
+        'CPPO',
+        'IPPO',
+        'NVPPO',
+        'QPPO',
+        'SCPO',
+    ];
+
     public function mount()
     {
-        // 🔐 FORCE USER'S ASSIGNED COLLECTION
         $this->selectedCollection = auth()->user()->collection;
+        $this->isLocked = auth()->user()->collection !== 'ALL';
     }
 
     protected $rules = [
@@ -41,13 +52,22 @@ class AddUser extends Component
         'Unit' => 'required|string',
         'email' => 'required|email',
         'password' => 'required|string|min:6',
+        'selectedCollection' => 'required|string',
     ];
 
     public function saveUser()
     {
         $this->validate();
 
-        $collection = auth()->user()->collection; // 🔐 FIXED COLLECTION
+        $authCollection = auth()->user()->collection;
+
+        if ($authCollection !== 'ALL') {
+            $this->selectedCollection = $authCollection;
+        }
+
+        if ($authCollection !== 'ALL' && $this->selectedCollection !== $authCollection) {
+            abort(403);
+        }
 
         $credentials = json_decode(env('FIREBASE_CREDENTIALS'), true);
         $credentials['private_key'] = str_replace("\\n", "\n", $credentials['private_key']);
@@ -57,51 +77,60 @@ class AddUser extends Component
         $auth = $factory->createAuth();
 
         try {
-            $createdUser = $auth->createUser([
+            $user = $auth->createUser([
                 'email' => $this->email,
                 'password' => $this->password,
                 'displayName' => $this->Name,
             ]);
 
-            $uid = $createdUser->uid;
+            $uid = $user->uid;
 
         } catch (\Exception $e) {
             session()->flash('error', $e->getMessage());
             return;
         }
 
-        $firestore = $factory->createFirestore();
-        $db = $firestore->database();
+        $db = $factory->createFirestore()->database();
 
-        // 🔐 SAVE ONLY TO USER'S COLLECTION
-        $db->collection($collection)
-            ->document($uid)
-            ->set([
-                'uid' => $uid,
-                'BWC' => $this->BWC,
-                'CallSign' => $this->CallSign,
-                'ContactNo' => $this->ContactNo,
-                'Name' => $this->Name,
-                'Payslip' => $this->Payslip,
-                'Rank' => $this->Rank,
-                'Role' => $this->Role,
-                'Station' => $this->Station,
-                'SubUnit' => $this->SubUnit,
-                'Unit' => $this->Unit,
-                'email' => $this->email,
-                'CreatedAt' => now()->toDateTimeString(),
-            ]);
+        $payload = [
+            'uid' => $uid,
+            'BWC' => $this->BWC,
+            'CallSign' => $this->CallSign,
+            'ContactNo' => $this->ContactNo,
+            'Name' => $this->Name,
+            'Payslip' => $this->Payslip,
+            'Rank' => $this->Rank,
+            'Role' => $this->Role,
+            'Station' => $this->Station,
+            'SubUnit' => $this->SubUnit,
+            'Unit' => $this->Unit,
+            'email' => $this->email,
+            'CreatedAt' => now()->toDateTimeString(),
+        ];
+
+        if ($this->selectedCollection === 'ALL') {
+            foreach (array_slice($this->firebase_collections, 1) as $collection) {
+                $db->collection($collection)->document($uid)->set($payload);
+            }
+        } else {
+            $db->collection($this->selectedCollection)->document($uid)->set($payload);
+        }
 
         session()->flash('message', 'User added successfully!');
 
         $this->reset([
             'BWC','CallSign','ContactNo','Name','Payslip',
-            'Rank','Role','Station','SubUnit','Unit','email','password'
+            'Rank','Role','Station','SubUnit','Unit',
+            'email','password','selectedCollection'
         ]);
     }
 
     public function render()
     {
         return view('livewire.users.adduser');
+    }
+    public function getIsLockedProperty()
+    {
+        return auth()->user()->collection !== 'ALL';
     }
 }

@@ -41,7 +41,7 @@ use App\Livewire\BarangayAffected\BarangayAffected;
 use App\Livewire\BarangayAffected\AddBarangayAffected;
 use App\Livewire\BarangayAffected\EditBarangayAffected;
 
-Route::view('/', 'welcome')->name('home');
+Route::redirect('/', '/login')->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
 

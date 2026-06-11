@@ -2,38 +2,47 @@
 
     <flux:card class="p-6 space-y-6">
 
-        {{-- HEADER --}}
         <div class="flex items-center justify-between">
             <flux:heading size="lg">Edit User</flux:heading>
         </div>
 
-        {{-- SUCCESS MESSAGE --}}
+        {{-- SUCCESS --}}
         @if(session()->has('message'))
             <flux:callout variant="success">
                 {{ session('message') }}
             </flux:callout>
         @endif
 
-        {{-- ERROR MESSAGE --}}
+        {{-- ERROR --}}
         @if(session()->has('error'))
             <flux:callout variant="danger">
                 {{ session('error') }}
             </flux:callout>
         @endif
 
-        {{-- COLLECTION (LOCKED SAME STYLE AS ADD) --}}
+        {{-- COLLECTION --}}
         <div class="space-y-1">
             <flux:label>Collection</flux:label>
-            <flux:input
-                value="{{ auth()->user()->collection }}"
-                readonly
-                class="bg-zinc-100 dark:bg-zinc-800"
-            />
+
+            @if(auth()->user()->collection === 'ALL')
+                <flux:select wire:model="selectedCollection">
+                    @foreach($firebase_collections as $collection)
+                        <option value="{{ $collection }}">
+                            {{ $collection }}
+                        </option>
+                    @endforeach
+                </flux:select>
+            @else
+                <flux:input
+                    value="{{ $selectedCollection }}"
+                    readonly
+                    class="bg-zinc-100 dark:bg-zinc-800"
+                />
+            @endif
         </div>
 
         <form wire:submit.prevent="updateUser" class="space-y-6">
 
-            {{-- GRID (SAME AS ADD USER) --}}
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 
                 <flux:input label="BWC" wire:model="BWC" />
@@ -53,7 +62,6 @@
 
             </div>
 
-            {{-- ACTIONS --}}
             <div class="flex justify-end gap-3 pt-4 border-t">
 
                 <flux:button href="{{ route('users') }}" variant="outline">

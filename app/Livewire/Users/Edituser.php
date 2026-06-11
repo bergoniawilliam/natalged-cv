@@ -9,6 +9,8 @@ use Google\Cloud\Firestore\FirestoreClient;
 class Edituser extends Component
 {
     public $uid;
+    public $selectedCollection;
+    public $isLocked;
 
     public $BWC;
     public $CallSign;
@@ -22,7 +24,15 @@ class Edituser extends Component
     public $Unit;
     public $email;
 
-    public $selectedCollection;
+    public $firebase_collections = [
+        'Administrators',
+        'BatanesPPO',
+        'CPPO',
+        'IPPO',
+        'NVPPO',
+        'QPPO',
+        'SCPO',
+    ];
 
     protected $rules = [
         'BWC' => 'required|string',
@@ -39,16 +49,16 @@ class Edituser extends Component
     ];
 
     // =========================
-    // MOUNT (SECURE)
+    // MOUNT
     // =========================
-    public function mount($uid)
+    public function mount($uid, $collection)
     {
         $this->uid = $uid;
+        $this->selectedCollection = $collection;
 
-        $this->selectedCollection = auth()->user()->collection;
+        $this->isLocked = auth()->user()->collection !== 'ALL';
 
         $db = $this->firestore();
-        $collection = $this->selectedCollection;
 
         $doc = $db->collection($collection)
             ->document($uid)
@@ -74,14 +84,22 @@ class Edituser extends Component
     }
 
     // =========================
-    // UPDATE USER (SECURE)
+    // UPDATE USER
     // =========================
     public function updateUser()
     {
         $this->validate();
 
+        $authCollection = auth()->user()->collection;
+
+        // LOCK logic same as AddUser
+        if ($authCollection !== 'ALL') {
+            $this->selectedCollection = $authCollection;
+        }
+
+        $collection = $this->selectedCollection;
+
         $db = $this->firestore();
-        $collection = auth()->user()->collection;
 
         $db->collection($collection)
             ->document($this->uid)
@@ -99,7 +117,7 @@ class Edituser extends Component
                 ['path' => 'email', 'value' => $this->email],
             ]);
 
-        // update Firebase Auth
+        // Firebase Auth update
         try {
             $auth = $this->firebaseAuth();
 
@@ -108,7 +126,7 @@ class Edituser extends Component
                 'displayName' => $this->Name,
             ]);
         } catch (\Exception $e) {
-            session()->flash('message', 'Auth update error: ' . $e->getMessage());
+            session()->flash('error', 'Auth update error: ' . $e->getMessage());
             return;
         }
 
@@ -121,7 +139,6 @@ class Edituser extends Component
     protected function firestore(): FirestoreClient
     {
         $credentials = json_decode(env('FIREBASE_CREDENTIALS'), true);
-
         $credentials['private_key'] = str_replace("\\n", "\n", $credentials['private_key']);
 
         return new FirestoreClient([
@@ -130,12 +147,11 @@ class Edituser extends Component
     }
 
     // =========================
-    // AUTH
+    // FIREBASE AUTH
     // =========================
     protected function firebaseAuth()
     {
         $credentials = json_decode(env('FIREBASE_CREDENTIALS'), true);
-
         $credentials['private_key'] = str_replace("\\n", "\n", $credentials['private_key']);
 
         return (new Factory)
@@ -143,9 +159,6 @@ class Edituser extends Component
             ->createAuth();
     }
 
-    // =========================
-    // VIEW
-    // =========================
     public function render()
     {
         return view('livewire.users.edituser');

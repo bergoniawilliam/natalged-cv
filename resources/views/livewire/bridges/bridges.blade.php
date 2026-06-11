@@ -69,15 +69,14 @@
                        
                         <td class="px-4 py-2 text-sm text-zinc-900 dark:text-zinc-100">
                             <div class="flex gap-2 items-center">
-                                <!-- Edit Button -->
-                                <flux:button 
-                                    variant="primary" 
-                                    color="blue" 
-                                    wire:navigate  
-                                    href="{{ route('editbridge', $collection['_id']) }}"
-                                >
-                                    Edit
-                                </flux:button>
+                               <flux:button 
+                            variant="primary" 
+                            color="blue" 
+                            wire:navigate  
+                            href="{{ route('editbridge', $collection['_id']) }}"
+                        >
+                            Edit
+                        </flux:button>
 
                                 <!-- Delete Button -->
                                 <!-- <button 
